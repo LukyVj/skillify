@@ -2079,6 +2079,14 @@
         flex-direction: column;
         gap: 6px;
       }
+      footer .analytics-notice {
+        grid-column: 1 / -1;
+        padding-top: 24px;
+        border-top: 1px solid var(--line);
+        color: var(--ink-4);
+        font-size: 10.5px;
+        line-height: 1.6;
+      }
 
       /* toast */
       .toast {
@@ -3730,6 +3738,9 @@
         <a href="#">Privacy</a>
         <span style="color: var(--ink-4)">v0.1 · 2026</span>
       </div>
+      <p class="analytics-notice">
+        This site uses Google Analytics (GA4) solely to count page visits — no personal data is collected, stored, or shared with third parties. No cookies are set beyond what Google Analytics requires. By continuing to use this site you acknowledge this use.
+      </p>
     </footer>
 
     <div class="toast" id="toast">copied</div>
