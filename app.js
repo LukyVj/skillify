@@ -15,7 +15,6 @@ const MODELS = {
   ],
   openai: [
     // GPT-5 series
-    { id: "gpt-5.5-pro", label: "gpt-5.5-pro  ★ frontier" },
     { id: "gpt-5.5", label: "gpt-5.5" },
     { id: "gpt-5.4-pro", label: "gpt-5.4-pro" },
     { id: "gpt-5.4", label: "gpt-5.4" },
@@ -292,10 +291,9 @@ function showSecurityPanel(warnings) {
       (w) => `
       <div class="sec-warn-item">
         ${badgeHtml(w.severity)}
-        <span>${escHtml(w.message)}${
-          w.match
-            ? ` <span class="sec-warn-match">${escHtml(w.match.slice(0, 48))}</span>`
-            : ""
+        <span>${escHtml(w.message)}${w.match
+          ? ` <span class="sec-warn-match">${escHtml(w.match.slice(0, 48))}</span>`
+          : ""
         }</span>
       </div>`
     )
@@ -437,7 +435,7 @@ async function callAnthropic({ apiKey, model, system, userMsg }) {
   });
   if (!res.ok) {
     const t = await res.text();
-    throw new Error(`Anthropic ${res.status}: ${t.slice(0, 200)}`);
+    throw new Error(`Anthropic ${res.status}: ${t.slice(0, 2000)}`);
   }
   const json = await res.json();
   const text = json.content?.map((c) => c.text).join("") || "";
@@ -463,7 +461,7 @@ async function callOpenAI({ apiKey, model, system, userMsg }) {
   });
   if (!res.ok) {
     const t = await res.text();
-    throw new Error(`OpenAI ${res.status}: ${t.slice(0, 200)}`);
+    throw new Error(`OpenAI ${res.status}: ${t.slice(0, 2000)}`);
   }
   const json = await res.json();
   const text = json.choices?.[0]?.message?.content || "";
@@ -484,7 +482,7 @@ async function callGoogle({ apiKey, model, system, userMsg }) {
   });
   if (!res.ok) {
     const t = await res.text();
-    throw new Error(`Google ${res.status}: ${t.slice(0, 200)}`);
+    throw new Error(`Google ${res.status}: ${t.slice(0, 2000)}`);
   }
   const json = await res.json();
   const text =
@@ -668,7 +666,7 @@ document.getElementById("form").addEventListener("submit", async (e) => {
     currentSlug = deriveSlug(lastMd);
 
     output.innerHTML = renderMd(lastMd);
-    outName.textContent = `Skill.md`;
+    outName.textContent = `${currentSlug}.md`;
     outMeta.textContent = `${lastMd.split("\n").length} lines · ${lastMd.length.toLocaleString()} bytes`;
     tokenMeter.textContent = `${tokens.toLocaleString()} tokens`;
     setStatus(
@@ -719,13 +717,32 @@ copyBtn.addEventListener("click", async () => {
 });
 dlBtn.addEventListener("click", () => {
   if (!lastMd) return;
+  const filename = outName.textContent.trim() || `${currentSlug}.md`;
   const blob = new Blob([lastMd], { type: "text/markdown" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = `Skill.md`;
+  a.download = filename.endsWith(".md") ? filename : filename + ".md";
   a.click();
   URL.revokeObjectURL(a.href);
-  flashToast(`saved Skill.md`);
+  flashToast(`saved ${a.download}`);
+});
+
+outName.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    outName.blur();
+  }
+  if (e.key === "Escape") {
+    outName.textContent = `${currentSlug}.md`;
+    outName.blur();
+  }
+});
+
+outName.addEventListener("blur", () => {
+  let val = outName.textContent.trim();
+  if (!val) val = `${currentSlug}.md`;
+  if (!val.endsWith(".md")) val += ".md";
+  outName.textContent = val;
 });
 
 /* anatomy: highlight code by hovered/clicked section */
