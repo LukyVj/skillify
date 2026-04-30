@@ -1,0 +1,3740 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4E5HBSQSWR"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-4E5HBSQSWR');
+    </script>
+    <title>Skillify — turn any technical post into an LLM skill</title>
+    <meta
+      name="description"
+      content="Skillify reads a URL and writes a Skill.md — frontmatter, overview, patterns, pitfalls — ready to package and upload as a Claude Agent Skill. Bring your own key. We never see it."
+    />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="Skillify — turn any technical post into an LLM skill"
+    />
+    <meta
+      property="og:description"
+      content="Paste a URL. Get a Skill.md. Browser-only, BYO API key, no backend."
+    />
+    <meta property="og:image" content="og-skillify.jpeg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="2048" />
+    <meta property="og:image:height" content="1483" />
+    <meta
+      property="og:image:alt"
+      content="Skillify — turn any technical post into an LLM skill"
+    />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Skillify — turn any technical post into an LLM skill"
+    />
+    <meta
+      name="twitter:description"
+      content="Paste a URL. Get a Skill.md. Browser-only, BYO API key, no backend."
+    />
+    <meta name="twitter:image" content="og-skillify.jpeg" />
+    <meta
+      name="twitter:image:alt"
+      content="Skillify — turn any technical post into an LLM skill"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0c10;
+        --bg-elev: #0f1218;
+        --bg-card: #131720;
+        --bg-card-2: #181d27;
+        --ink: #ecead6;
+        --ink-2: #b6b3a1;
+        --ink-3: #6e6c5f;
+        --ink-4: #4a4940;
+        --line: #ffffff0e;
+        --line-2: #ffffff1a;
+        --line-3: #ffffff2e;
+        --accent: oklch(74% 0.16 55);
+        --accent-2: oklch(82% 0.14 60);
+        --accent-soft: oklch(30% 0.08 55);
+        --cyan: oklch(80% 0.1 215);
+        --violet: oklch(72% 0.14 290);
+        --green: oklch(74% 0.16 150);
+        --red: oklch(72% 0.18 25);
+        --radius: 12px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: "Inter", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        font-size: 15px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "ss01", "cv11";
+        overflow-x: hidden;
+      }
+      ::selection {
+        background: var(--accent);
+        color: #0a0c10;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .mono {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+      }
+      .serif {
+        font-family: "Instrument Serif", serif;
+        font-style: italic;
+        font-weight: 400;
+        letter-spacing: -0.01em;
+      }
+
+      /* grain overlay */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 1;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0   0 0 0 0 0   0 0 0 0 0   0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+        opacity: 0.55;
+        mix-blend-mode: overlay;
+      }
+      /* radial spotlight */
+      .spotlight {
+        position: absolute;
+        inset: -10% -10% auto -10%;
+        height: 720px;
+        pointer-events: none;
+        z-index: 0;
+        background:
+          radial-gradient(
+            60% 50% at 50% 0%,
+            color-mix(in oklab, var(--accent) 20%, transparent) 0%,
+            transparent 60%
+          ),
+          radial-gradient(
+            40% 30% at 78% 6%,
+            color-mix(in oklab, var(--violet) 14%, transparent) 0%,
+            transparent 65%
+          );
+        filter: blur(8px);
+      }
+      /* hairline grid behind hero */
+      .grid-bg {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(to right, var(--line) 1px, transparent 1px),
+          linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+        background-size: 64px 64px;
+        background-position: 50% 0;
+        mask-image: radial-gradient(
+          ellipse at 50% 0%,
+          black 0%,
+          black 35%,
+          transparent 75%
+        );
+      }
+
+      /* ---------- nav ---------- */
+      .nav {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        backdrop-filter: blur(16px) saturate(140%);
+        background: color-mix(in oklab, var(--bg) 70%, transparent);
+        border-bottom: 1px solid var(--line);
+      }
+      .nav-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 12px 28px;
+        display: flex;
+        align-items: center;
+        gap: 28px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        font-size: 15px;
+      }
+      .brand-mark {
+        width: 24px;
+        height: 24px;
+        border-radius: 7px;
+        background: conic-gradient(
+          from 210deg at 50% 50%,
+          oklch(74% 0.16 55),
+          oklch(78% 0.13 80),
+          oklch(72% 0.16 55),
+          oklch(74% 0.16 55)
+        );
+        color: #0a0c10;
+        display: grid;
+        place-items: center;
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+        font-size: 12px;
+        box-shadow:
+          0 0 0 1px #ffffff20 inset,
+          0 1px 0 #ffffff30 inset,
+          0 0 12px -2px color-mix(in oklab, var(--accent) 50%, transparent);
+      }
+      .brand-tag {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        color: var(--ink-3);
+        border: 1px solid var(--line-2);
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 4px;
+      }
+      .nav-links {
+        display: flex;
+        gap: 24px;
+        margin-left: auto;
+        align-items: center;
+        font-size: 13.5px;
+        color: var(--ink-2);
+      }
+      .nav-links a:hover {
+        color: var(--ink);
+      }
+      .nav-cta {
+        padding: 7px 13px 7px 11px;
+        border: 1px solid var(--line-2);
+        border-radius: 999px;
+        background: linear-gradient(180deg, #ffffff08, #ffffff02);
+        font-size: 13px;
+        color: var(--ink);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition:
+          border-color 0.15s,
+          background 0.15s;
+      }
+      .nav-cta:hover {
+        border-color: var(--line-3);
+        background: linear-gradient(180deg, #ffffff14, #ffffff06);
+      }
+      .nav-cta .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 0 3px color-mix(in oklab, var(--green) 25%, transparent);
+      }
+
+      /* ---------- containers ---------- */
+      main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 28px;
+        position: relative;
+        z-index: 2;
+      }
+      section {
+        padding: 96px 0;
+        position: relative;
+      }
+      section + section {
+        border-top: 1px solid var(--line);
+      }
+
+      .eyebrow {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--ink-3);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .eyebrow::before {
+        content: "";
+        width: 18px;
+        height: 1px;
+        background: var(--accent);
+        box-shadow: 0 0 8px color-mix(in oklab, var(--accent) 60%, transparent);
+      }
+
+      h1,
+      h2,
+      h3 {
+        letter-spacing: -0.02em;
+        font-weight: 600;
+        margin: 0;
+      }
+      h1 {
+        font-size: clamp(44px, 6.6vw, 80px);
+        line-height: 0.98;
+        letter-spacing: -0.04em;
+        background: linear-gradient(180deg, #fff 0%, #d6d2bf 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      h1 em {
+        font-family: "Instrument Serif", serif;
+        font-style: italic;
+        font-weight: 400;
+        letter-spacing: -0.005em;
+        background: linear-gradient(
+          180deg,
+          var(--accent-2) 0%,
+          var(--accent) 100%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      h2 {
+        font-size: clamp(30px, 3.8vw, 46px);
+        line-height: 1.05;
+        letter-spacing: -0.028em;
+      }
+      h3 {
+        font-size: 17px;
+        line-height: 1.3;
+      }
+      p {
+        color: var(--ink-2);
+      }
+      .lede {
+        font-size: 17.5px;
+        line-height: 1.55;
+        color: var(--ink-2);
+        max-width: 60ch;
+      }
+      .lede em {
+        font-family: "Instrument Serif", serif;
+        color: var(--ink);
+        font-size: 1.05em;
+      }
+
+      /* ---------- hero ---------- */
+      .hero {
+        padding: 96px 0 80px;
+        position: relative;
+      }
+      .hero-frame {
+        position: relative;
+        z-index: 2;
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 80px;
+        align-items: center;
+      }
+      @media (max-width: 980px) {
+        .hero-frame {
+          grid-template-columns: 1fr;
+          gap: 56px;
+        }
+      }
+
+      .announce {
+        display: inline-flex;
+        align-items: center;
+        gap: 0;
+        padding: 4px 4px 4px 12px;
+        border: 1px solid var(--line-2);
+        border-radius: 999px;
+        background: linear-gradient(180deg, #ffffff08, transparent);
+        font-size: 12.5px;
+        color: var(--ink-2);
+        margin-bottom: 28px;
+      }
+      .announce .pip {
+        margin: 0 10px 0 8px;
+        background: var(--accent-soft);
+        color: var(--accent-2);
+        border-radius: 999px;
+        padding: 3px 9px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.04em;
+        border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent);
+      }
+      .announce .arr {
+        margin-left: 6px;
+        opacity: 0.7;
+        transition: transform 0.2s;
+      }
+      .announce:hover .arr {
+        transform: translateX(2px);
+      }
+
+      .hero-meta {
+        margin-top: 36px;
+        display: grid;
+        grid-template-columns: repeat(3, max-content);
+        gap: 28px 36px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        color: var(--ink-3);
+      }
+      .hero-meta b {
+        color: var(--ink);
+        font-weight: 500;
+        display: block;
+        font-size: 12.5px;
+        margin-bottom: 2px;
+      }
+
+      .hero-cta-row {
+        margin-top: 36px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .btn-primary,
+      .btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 18px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12.5px;
+        font-weight: 500;
+        border-radius: 10px;
+        cursor: pointer;
+        transition:
+          transform 0.12s,
+          filter 0.12s,
+          border-color 0.15s,
+          background 0.15s;
+      }
+      .btn-primary {
+        color: #0a0c10;
+        background: linear-gradient(180deg, var(--accent-2), var(--accent));
+        border: 1px solid color-mix(in oklab, var(--accent) 60%, white);
+        box-shadow:
+          0 0 0 1px #00000020 inset,
+          0 1px 0 #ffffff50 inset,
+          0 12px 32px -10px color-mix(in oklab, var(--accent) 55%, transparent),
+          0 2px 8px -2px color-mix(in oklab, var(--accent) 30%, transparent);
+      }
+      .btn-primary:hover {
+        filter: brightness(1.04);
+      }
+      .btn-primary:active {
+        transform: translateY(1px);
+      }
+      .btn-ghost {
+        color: var(--ink);
+        background: linear-gradient(180deg, #ffffff0a, #ffffff02);
+        border: 1px solid var(--line-2);
+      }
+      .btn-ghost:hover {
+        border-color: var(--line-3);
+        background: linear-gradient(180deg, #ffffff14, #ffffff04);
+      }
+      .kbd {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        border: 1px solid #00000022;
+        padding: 1px 6px;
+        border-radius: 4px;
+        background: #00000018;
+      }
+      .btn-ghost .kbd {
+        background: #ffffff0a;
+        border-color: var(--line-2);
+        color: var(--ink-3);
+      }
+
+      /* hero diagram (flow card) */
+      .flow {
+        position: relative;
+        background:
+          radial-gradient(120% 100% at 50% 0%, #ffffff0a 0%, transparent 60%),
+          var(--bg-card);
+        border: 1px solid var(--line-2);
+        border-radius: 16px;
+        padding: 18px;
+        box-shadow:
+          0 1px 0 #ffffff10 inset,
+          0 40px 80px -40px rgba(0, 0, 0, 0.7),
+          0 0 0 1px #00000040;
+      }
+      .flow-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 4px 4px 14px;
+        border-bottom: 1px dashed var(--line-2);
+        margin-bottom: 16px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--ink-3);
+      }
+      .flow-head .lights {
+        display: flex;
+        gap: 6px;
+      }
+      .flow-head .lights i {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #ffffff14;
+      }
+      .flow-head .right {
+        margin-left: auto;
+      }
+
+      .flow-body {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .node {
+        background: var(--bg-elev);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        position: relative;
+      }
+      .node-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--ink-3);
+        margin-bottom: 6px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .node-label .tag {
+        color: var(--accent);
+        border: 1px solid color-mix(in oklab, var(--accent) 35%, transparent);
+        border-radius: 4px;
+        padding: 1px 6px;
+        font-size: 9.5px;
+        background: color-mix(in oklab, var(--accent) 10%, transparent);
+      }
+      .node .url {
+        color: var(--ink);
+      }
+      .node .url .host {
+        color: var(--cyan);
+      }
+      .node .url .path {
+        color: var(--ink-2);
+      }
+
+      .node.md {
+        background: linear-gradient(180deg, #0d1118, #0a0c10);
+        line-height: 1.65;
+      }
+      .node.md .fm {
+        color: var(--ink-3);
+      }
+      .node.md .key {
+        color: var(--accent);
+      }
+      .node.md .val {
+        color: var(--ink);
+      }
+      .node.md .h {
+        color: #fff;
+      }
+      .node.md .b {
+        color: var(--accent);
+      }
+
+      .connector {
+        height: 28px;
+        position: relative;
+        display: grid;
+        place-items: center;
+      }
+      .connector::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: linear-gradient(
+          180deg,
+          var(--line-2),
+          var(--accent),
+          var(--line-2)
+        );
+        transform: translateX(-0.5px);
+      }
+      .connector .pkt {
+        position: relative;
+        z-index: 1;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        color: var(--accent);
+        background: var(--bg-card);
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 1px solid color-mix(in oklab, var(--accent) 35%, transparent);
+        box-shadow: 0 0 12px -2px
+          color-mix(in oklab, var(--accent) 50%, transparent);
+        animation: pktblink 2.4s ease-in-out infinite;
+      }
+      @keyframes pktblink {
+        0%,
+        100% {
+          opacity: 0.85;
+        }
+        50% {
+          opacity: 1;
+          transform: translateY(-1px);
+        }
+      }
+
+      .flow-foot {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px dashed var(--line-2);
+        display: flex;
+        gap: 16px;
+        justify-content: space-between;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        color: var(--ink-3);
+      }
+      .flow-foot b {
+        color: var(--ink-2);
+        font-weight: 500;
+      }
+
+      /* tiny logo strip */
+      .logos {
+        margin-top: 64px;
+        padding-top: 36px;
+        display: flex;
+        align-items: center;
+        gap: 36px;
+        flex-wrap: wrap;
+        border-top: 1px solid var(--line);
+        color: var(--ink-3);
+      }
+      .logos-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+      .logos .item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--ink-2);
+        opacity: 0.85;
+      }
+      .logos .item svg {
+        color: var(--ink-2);
+      }
+
+      /* ---------- section header ---------- */
+      .section-head {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 28px 64px;
+        align-items: end;
+        margin-bottom: 56px;
+      }
+      @media (max-width: 760px) {
+        .section-head {
+          grid-template-columns: 1fr;
+          gap: 18px;
+        }
+      }
+
+      /* ---------- the converter ---------- */
+      .tool-shell {
+        position: relative;
+        border-radius: 18px;
+        background:
+          radial-gradient(
+            80% 100% at 0% 0%,
+            color-mix(in oklab, var(--accent) 7%, transparent),
+            transparent 60%
+          ),
+          radial-gradient(
+            80% 100% at 100% 100%,
+            color-mix(in oklab, var(--violet) 7%, transparent),
+            transparent 60%
+          ),
+          var(--bg-card);
+        border: 1px solid var(--line-2);
+        box-shadow:
+          0 1px 0 #ffffff10 inset,
+          0 40px 100px -40px rgba(0, 0, 0, 0.7),
+          0 0 0 1px #00000050;
+        overflow: hidden;
+      }
+      .tool-bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--line-2);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        color: var(--ink-3);
+        background: linear-gradient(180deg, #ffffff04, transparent);
+      }
+      .tool-bar .lights {
+        display: flex;
+        gap: 6px;
+      }
+      .tool-bar .lights i {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #ffffff10;
+        border: 1px solid #ffffff10;
+      }
+      .tool-bar .breadcrumbs {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        color: var(--ink-3);
+      }
+      .tool-bar .breadcrumbs b {
+        color: var(--ink);
+        font-weight: 500;
+      }
+      .tool-bar .breadcrumbs .slash {
+        color: var(--ink-4);
+      }
+      .tool-bar .right {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .tool-bar .right .pulse {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--ink-3);
+      }
+      .tool-bar.run .pulse {
+        background: var(--accent);
+        animation: pulse 1.2s infinite;
+      }
+      .tool-bar.ready .pulse {
+        background: var(--green);
+        box-shadow: 0 0 0 3px color-mix(in oklab, var(--green) 25%, transparent);
+      }
+      .tool-bar.err .pulse {
+        background: var(--red);
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0
+            color-mix(in oklab, var(--accent) 50%, transparent);
+        }
+        50% {
+          box-shadow: 0 0 0 6px transparent;
+        }
+      }
+
+      .tool-grid {
+        display: grid;
+        grid-template-columns: 0.95fr 1.1fr;
+        min-height: 540px;
+      }
+      @media (max-width: 980px) {
+        .tool-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .tool-input {
+        padding: 28px;
+        border-right: 1px solid var(--line-2);
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+        background: linear-gradient(180deg, #ffffff02, transparent);
+      }
+      @media (max-width: 980px) {
+        .tool-input {
+          border-right: none;
+          border-bottom: 1px solid var(--line-2);
+        }
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .field-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--ink-3);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .field-label .req {
+        color: var(--accent);
+        margin-left: 4px;
+      }
+      .field-hint {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        color: var(--ink-4);
+      }
+
+      .input-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+      .input-wrap .prefix,
+      .input-wrap .suffix {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        color: var(--ink-4);
+        pointer-events: none;
+      }
+      .input-wrap .prefix {
+        left: 12px;
+      }
+      .input-wrap .suffix {
+        right: 12px;
+      }
+      .input-wrap.has-prefix input {
+        /* padding-left: 32px; */
+      }
+
+      .field input,
+      .field select {
+        width: 100%;
+        background: #00000028;
+        border: 1px solid var(--line-2);
+        border-radius: 9px;
+        color: var(--ink);
+        padding: 12px 14px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        outline: none;
+        transition:
+          border-color 0.15s,
+          background 0.15s,
+          box-shadow 0.15s;
+      }
+      .field input:focus,
+      .field select:focus {
+        border-color: color-mix(in oklab, var(--accent) 70%, transparent);
+        background: #00000038;
+        box-shadow: 0 0 0 3px
+          color-mix(in oklab, var(--accent) 18%, transparent);
+      }
+      .field input::placeholder {
+        color: var(--ink-4);
+      }
+
+      .row-2 {
+        display: grid;
+        grid-template-columns: 1fr 1.4fr;
+        gap: 12px;
+      }
+
+      /* segmented provider control */
+      .segmented {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 4px;
+        padding: 4px;
+        background: #00000028;
+        border: 1px solid var(--line-2);
+        border-radius: 10px;
+      }
+      .segmented input {
+        display: none;
+      }
+      .segmented label {
+        cursor: pointer;
+        padding: 9px 10px;
+        border-radius: 6px;
+        text-align: center;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        color: var(--ink-2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition:
+          background 0.15s,
+          color 0.15s;
+        border: 1px solid transparent;
+      }
+      .segmented input:checked + label {
+        background: linear-gradient(180deg, #ffffff10, #ffffff04);
+        color: var(--ink);
+        border-color: var(--line-2);
+        box-shadow: 0 1px 0 #ffffff10 inset;
+      }
+      .segmented label svg {
+        color: var(--ink-3);
+      }
+      .segmented input:checked + label svg {
+        color: var(--accent);
+      }
+
+      .keyrow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        background: color-mix(in oklab, var(--green) 6%, transparent);
+        border: 1px solid color-mix(in oklab, var(--green) 18%, transparent);
+        border-radius: 8px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--ink-2);
+      }
+      .keyrow .lock {
+        color: var(--green);
+        flex-shrink: 0;
+      }
+      .keyrow b {
+        color: var(--ink);
+        font-weight: 500;
+      }
+
+      .api-key-warn {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        color: var(--ink-3);
+        line-height: 1.55;
+        padding: 8px 10px;
+        border-radius: 6px;
+        background: color-mix(in oklab, var(--accent) 7%, transparent);
+        border: 1px solid color-mix(in oklab, var(--accent) 18%, transparent);
+      }
+
+      /* ---------- security panel ---------- */
+      .sec-panel {
+        border-top: 1px solid var(--line-2);
+        padding: 14px 20px 16px;
+        background: linear-gradient(180deg, #ffffff02, transparent);
+      }
+      .sec-panel-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--ink-3);
+        margin-bottom: 12px;
+      }
+      .sec-panel-head.has-critical {
+        color: var(--red);
+      }
+      .sec-badge {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 9px;
+        padding: 2px 5px;
+        border-radius: 3px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        flex-shrink: 0;
+      }
+      .sec-badge.critical {
+        background: color-mix(in oklab, var(--red) 18%, transparent);
+        color: var(--red);
+        border: 1px solid color-mix(in oklab, var(--red) 35%, transparent);
+      }
+      .sec-badge.high {
+        background: color-mix(in oklab, oklch(72% 0.16 38) 18%, transparent);
+        color: oklch(72% 0.16 38);
+        border: 1px solid color-mix(in oklab, oklch(72% 0.16 38) 35%, transparent);
+      }
+      .sec-badge.medium {
+        background: color-mix(in oklab, var(--accent) 14%, transparent);
+        color: var(--accent-2);
+        border: 1px solid color-mix(in oklab, var(--accent) 28%, transparent);
+      }
+      .sec-badge.low {
+        background: color-mix(in oklab, var(--ink-3) 14%, transparent);
+        color: var(--ink-2);
+        border: 1px solid color-mix(in oklab, var(--ink-3) 28%, transparent);
+      }
+      .sec-warn-list {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        margin-bottom: 10px;
+      }
+      .sec-warn-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        font-size: 12px;
+        line-height: 1.45;
+        color: var(--ink-2);
+        font-family: "JetBrains Mono", monospace;
+      }
+      .sec-warn-match {
+        font-size: 10px;
+        color: var(--ink-3);
+        background: #ffffff06;
+        border: 1px solid var(--line);
+        padding: 0 5px;
+        border-radius: 3px;
+        margin-left: 4px;
+        display: inline-block;
+        max-width: 220px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        vertical-align: -1px;
+      }
+      .sec-notice {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        color: var(--ink-4);
+        border-top: 1px dashed var(--line);
+        padding-top: 8px;
+        margin-top: 4px;
+        line-height: 1.5;
+      }
+      .sec-confirm {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-top: 12px;
+        padding: 10px 12px;
+        background: color-mix(in oklab, var(--red) 7%, transparent);
+        border: 1px solid color-mix(in oklab, var(--red) 22%, transparent);
+        border-radius: 8px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--ink-2);
+        cursor: pointer;
+        line-height: 1.5;
+      }
+      .sec-confirm input[type="checkbox"] {
+        width: 13px;
+        height: 13px;
+        accent-color: var(--red);
+        flex-shrink: 0;
+        cursor: pointer;
+        margin-top: 2px;
+      }
+
+      .submit {
+        margin-top: auto;
+        color: #0a0c10;
+        background: linear-gradient(180deg, var(--accent-2), var(--accent));
+        border: 1px solid color-mix(in oklab, var(--accent) 70%, white);
+        padding: 13px 16px;
+        border-radius: 10px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        transition:
+          transform 0.12s,
+          filter 0.12s;
+        box-shadow:
+          0 0 0 1px #00000022 inset,
+          0 1px 0 #ffffff50 inset,
+          0 14px 36px -12px color-mix(in oklab, var(--accent) 55%, transparent);
+      }
+      .submit:hover {
+        filter: brightness(1.05);
+      }
+      .submit:active {
+        transform: translateY(1px);
+      }
+      .submit:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        filter: grayscale(0.4);
+      }
+
+      /* output */
+      .tool-output {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background:
+          linear-gradient(#00000010, #00000010),
+          repeating-linear-gradient(
+            to bottom,
+            transparent 0,
+            transparent 23px,
+            #ffffff04 23px,
+            #ffffff04 24px
+          );
+      }
+      .out-bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 11px 18px;
+        border-bottom: 1px solid var(--line-2);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        color: var(--ink-3);
+        background: linear-gradient(180deg, #ffffff04, transparent);
+      }
+      .out-bar .filename {
+        color: var(--ink);
+      }
+      .out-bar .actions {
+        margin-left: auto;
+        display: flex;
+        gap: 6px;
+      }
+      .out-bar .actions button {
+        background: #ffffff06;
+        border: 1px solid var(--line-2);
+        color: var(--ink-2);
+        border-radius: 7px;
+        padding: 6px 10px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        cursor: pointer;
+        transition:
+          border-color 0.15s,
+          color 0.15s;
+      }
+      .out-bar .actions button:hover {
+        border-color: var(--line-3);
+        color: var(--ink);
+      }
+      .out-bar .actions button:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+
+      .out-body {
+        flex: 1;
+        overflow: auto;
+        padding: 22px 26px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12.5px;
+        line-height: 1.7;
+        color: var(--ink);
+      }
+      .out-body .placeholder {
+        color: var(--ink-3);
+      }
+      .out-body .placeholder .step {
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: 10px;
+        padding: 6px 0;
+        align-items: baseline;
+      }
+      .out-body .placeholder .step .n {
+        font-size: 10.5px;
+        color: var(--ink-4);
+      }
+      .out-body .placeholder .step b {
+        color: var(--ink-2);
+        font-weight: 500;
+      }
+      .out-body .placeholder .step .desc {
+        color: var(--ink-3);
+        font-size: 12px;
+      }
+      .out-body .placeholder .title {
+        color: var(--ink);
+        font-size: 13px;
+        margin-bottom: 14px;
+      }
+
+      /* rendered markdown output lines */
+      .out-body > div {
+        word-break: break-word;
+      }
+      .ln-fm {
+        color: var(--ink-3);
+      }
+      .ln-fm-kv .key {
+        color: var(--accent);
+      }
+      .ln-fm-kv .val {
+        color: var(--ink-2);
+      }
+      .ln-h1 {
+        color: #fff;
+        font-weight: 600;
+        font-size: 14px;
+        margin-top: 20px;
+        margin-bottom: 2px;
+      }
+      .ln-h2 {
+        color: var(--ink);
+        font-weight: 600;
+        font-size: 13px;
+        margin-top: 16px;
+        margin-bottom: 2px;
+        border-top: 1px dashed var(--line);
+        padding-top: 10px;
+      }
+      .ln-h3 {
+        color: var(--ink-2);
+        font-weight: 600;
+        margin-top: 10px;
+      }
+      .ln-p {
+        color: var(--ink-2);
+      }
+      .ln-bullet {
+        color: var(--ink-2);
+        padding-left: 2px;
+      }
+      .ln-bullet .bul {
+        color: var(--accent);
+        margin-right: 6px;
+      }
+      .ln-empty {
+        height: 0.5em;
+      }
+      .ln-code-fence {
+        color: var(--ink-3);
+        margin-top: 4px;
+      }
+      .ln-code-block {
+        margin: 4px 0 8px;
+        padding: 12px 14px;
+        background: #00000030;
+        border: 1px solid var(--line-2);
+        border-radius: 8px;
+        white-space: pre-wrap;
+        word-break: break-all;
+        color: var(--cyan);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        line-height: 1.65;
+        overflow-x: auto;
+      }
+      /* legacy classes used by placeholder */
+      .md .fm {
+        color: var(--ink-3);
+      }
+      .md .h1,
+      .md .h2 {
+        color: #fff;
+        font-weight: 600;
+      }
+      .md .key {
+        color: var(--accent);
+      }
+      .md .code {
+        color: var(--cyan);
+      }
+      .md .bullet {
+        color: var(--accent);
+      }
+
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--ink-3);
+        padding: 11px 18px;
+        border-top: 1px solid var(--line-2);
+        background: #00000028;
+      }
+      .status .right {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      /* ---------- bento (how it works / features) ---------- */
+      .bento {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        grid-auto-rows: minmax(300px, auto);
+        gap: 12px;
+      }
+      @media (max-width: 980px) {
+        .bento {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 540px) {
+        .bento {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .cell {
+        position: relative;
+        background:
+          radial-gradient(120% 100% at 0% 0%, #ffffff05, transparent 60%),
+          var(--bg-card);
+        border: 1px solid var(--line-2);
+        border-radius: 14px;
+        padding: 22px;
+        overflow: hidden;
+      }
+      .cell h3 {
+        margin-bottom: 6px;
+      }
+      .cell p {
+        font-size: 13.5px;
+        margin: 0;
+      }
+
+      .cell .num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        color: var(--ink-4);
+        letter-spacing: 0.08em;
+      }
+      .cell .num b {
+        color: var(--accent);
+        font-weight: 500;
+      }
+      .cell .body {
+        margin-top: 18px;
+        padding-bottom: 130px;
+      }
+      .cell-stage {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 110px;
+        border-top: 1px dashed var(--line);
+        background: linear-gradient(180deg, transparent, #00000028);
+        overflow: hidden;
+      }
+
+      .span-3 {
+        grid-column: span 3;
+      }
+      .span-2 {
+        grid-column: span 2;
+      }
+      .span-4 {
+        grid-column: span 4;
+      }
+      .span-6 {
+        grid-column: span 6;
+      }
+      @media (max-width: 980px) {
+        .span-2,
+        .span-3,
+        .span-4,
+        .span-6 {
+          grid-column: span 2;
+        }
+      }
+      @media (max-width: 540px) {
+        .span-2,
+        .span-3,
+        .span-4,
+        .span-6 {
+          grid-column: span 1;
+        }
+      }
+
+      /* fetch viz */
+      .vz-fetch {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        position: relative;
+      }
+      .vz-fetch .ring {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        border: 1px solid var(--line-2);
+        position: relative;
+      }
+      .vz-fetch .ring::before {
+        content: "";
+        position: absolute;
+        inset: -8px;
+        border: 1px dashed var(--line-2);
+        border-radius: 50%;
+        animation: spin 14s linear infinite;
+      }
+      .vz-fetch .ring::after {
+        content: "";
+        position: absolute;
+        inset: -16px;
+        border: 1px solid var(--line);
+        border-radius: 50%;
+      }
+      .vz-fetch .pin {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 8px;
+        height: 8px;
+        background: var(--accent);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 14px color-mix(in oklab, var(--accent) 70%, transparent);
+      }
+      .vz-fetch .core {
+        position: absolute;
+        inset: 50%;
+        width: 26px;
+        height: 26px;
+        transform: translate(-50%, -50%);
+        background: var(--bg-elev);
+        border: 1px solid var(--line-2);
+        border-radius: 6px;
+        display: grid;
+        place-items: center;
+        color: var(--accent);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* extract viz */
+      .vz-extract {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 10px 14px;
+        height: 100%;
+        justify-content: center;
+      }
+      .vz-extract .ln {
+        height: 6px;
+        border-radius: 3px;
+        background: var(--line-2);
+        position: relative;
+        overflow: hidden;
+      }
+      .vz-extract .ln.kept {
+        background: color-mix(in oklab, var(--accent) 50%, var(--line-2));
+      }
+      .vz-extract .ln.kept::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, transparent, #ffffff20, transparent);
+        animation: shimmer 2.4s ease-in-out infinite;
+      }
+      .vz-extract .ln.cut {
+        opacity: 0.4;
+        text-decoration: line-through;
+      }
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      /* distill viz */
+      .vz-distill {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 14px;
+        align-items: center;
+        height: 100%;
+        padding: 12px 18px;
+      }
+      .vz-distill .stack {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .vz-distill .stack .row {
+        height: 5px;
+        border-radius: 2px;
+        background: var(--line-2);
+      }
+      .vz-distill .stack .row:nth-child(1) {
+        width: 92%;
+      }
+      .vz-distill .stack .row:nth-child(2) {
+        width: 78%;
+      }
+      .vz-distill .stack .row:nth-child(3) {
+        width: 84%;
+      }
+      .vz-distill .stack .row:nth-child(4) {
+        width: 64%;
+      }
+      .vz-distill .stack .row:nth-child(5) {
+        width: 88%;
+      }
+      .vz-distill .stack .row:nth-child(6) {
+        width: 70%;
+      }
+      .vz-distill .stack.right .row {
+        background: color-mix(in oklab, var(--accent) 55%, var(--line-2));
+      }
+      .vz-distill .stack.right .row:nth-child(1) {
+        width: 60%;
+      }
+      .vz-distill .stack.right .row:nth-child(2) {
+        width: 80%;
+      }
+      .vz-distill .stack.right .row:nth-child(3) {
+        width: 50%;
+      }
+      .vz-distill .stack.right .row:nth-child(4) {
+        width: 72%;
+      }
+      .vz-distill .arrow {
+        color: var(--accent);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 16px;
+      }
+
+      /* save viz */
+      .vz-save {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+      }
+      .vz-save .file {
+        width: 110px;
+        height: 130px;
+        border-radius: 6px;
+        background: var(--bg-elev);
+        border: 1px solid var(--line-2);
+        position: relative;
+        box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.6);
+        transform: rotate(-4deg);
+      }
+      .vz-save .file::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 22px;
+        height: 22px;
+        background: var(--bg-card-2);
+        border-left: 1px solid var(--line-2);
+        border-bottom: 1px solid var(--line-2);
+        border-bottom-left-radius: 4px;
+      }
+      .vz-save .file .name {
+        position: absolute;
+        bottom: 14px;
+        left: 14px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        color: var(--accent);
+      }
+      .vz-save .file .lines {
+        position: absolute;
+        top: 36px;
+        left: 14px;
+        right: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .vz-save .file .lines i {
+        height: 3px;
+        border-radius: 2px;
+        background: var(--line-2);
+        display: block;
+      }
+      .vz-save .file .lines i:nth-child(1) {
+        width: 60%;
+      }
+      .vz-save .file .lines i:nth-child(2) {
+        width: 86%;
+      }
+      .vz-save .file .lines i:nth-child(3) {
+        width: 70%;
+      }
+      .vz-save .file .lines i:nth-child(4) {
+        width: 90%;
+      }
+      .vz-save .file .lines i:nth-child(5) {
+        width: 54%;
+      }
+
+      /* ---------- anatomy ---------- */
+      .anat {
+        margin-top: 56px;
+        display: grid;
+        grid-template-columns: 1fr 1.05fr;
+        gap: 56px;
+        align-items: start;
+      }
+      @media (max-width: 980px) {
+        .anat {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .anat-list {
+        display: flex;
+        flex-direction: column;
+      }
+      .anat-row {
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        gap: 20px;
+        padding: 18px 0;
+        border-bottom: 1px dashed var(--line);
+        cursor: pointer;
+        transition: padding-left 0.15s;
+      }
+      .anat-row:first-child {
+        border-top: 1px dashed var(--line);
+      }
+      .anat-row:hover {
+        padding-left: 8px;
+      }
+      .anat-row.active {
+        padding-left: 12px;
+      }
+      .anat-row.active .anat-key {
+        color: var(--accent);
+      }
+      .anat-key {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        color: var(--ink-2);
+        padding-top: 2px;
+        transition: color 0.15s;
+      }
+      .anat-desc h4 {
+        margin: 0 0 4px;
+        font-size: 14.5px;
+        font-weight: 600;
+        color: var(--ink);
+      }
+      .anat-desc p {
+        margin: 0;
+        font-size: 13.5px;
+      }
+
+      .anat-preview {
+        background:
+          radial-gradient(120% 100% at 0% 0%, #ffffff05, transparent 60%),
+          var(--bg-card);
+        border: 1px solid var(--line-2);
+        border-radius: 14px;
+        overflow: hidden;
+        position: sticky;
+        top: 100px;
+      }
+      .anat-preview header {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--line-2);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        color: var(--ink-3);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: linear-gradient(180deg, #ffffff04, transparent);
+        overflow: hidden;
+      }
+      .anat-preview header .lights {
+        display: flex;
+        gap: 5px;
+        flex-shrink: 0;
+      }
+      .anat-preview header .lights i {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #ffffff10;
+        display: inline-block;
+      }
+      .anat-preview header .filename {
+        color: var(--ink);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        min-width: 0;
+        flex: 1;
+      }
+      .anat-preview header .right {
+        margin-left: auto;
+        flex-shrink: 0;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        color: var(--ink-4);
+      }
+
+      .anat-code {
+        padding: 22px 0;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12.5px;
+        line-height: 1.75;
+        color: var(--ink);
+        max-height: 560px;
+        white-space: normal;
+        overflow: auto;
+        background: linear-gradient(180deg, #00000020, transparent);
+        counter-reset: line;
+      }
+      .anat-code .ln {
+        display: flex;
+        gap: 2px;
+      }
+      .anat-code .ln::before {
+        counter-increment: line;
+        content: counter(line, decimal-leading-zero);
+        color: var(--ink-4);
+        font-size: 10.5px;
+        text-align: right;
+        user-select: none;
+        flex: 0 0 28px;
+      }
+      .anat-code .fm-line {
+        color: var(--ink-3);
+      }
+      .anat-code .fm-key {
+        color: var(--accent);
+      }
+      .anat-code .h1,
+      .anat-code .h2 {
+        color: #fff;
+        font-weight: 600;
+      }
+      .anat-code .bullet {
+        color: var(--accent);
+      }
+      .anat-code .code {
+        background: #ffffff06;
+        border: 1px solid var(--line-2);
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-size: 11.5px;
+        color: var(--cyan);
+      }
+      .anat-code mark.hl {
+        background: color-mix(in oklab, var(--accent) 25%, transparent);
+        color: var(--ink);
+        border-radius: 3px;
+        padding: 0 3px;
+        border-bottom: 1px solid
+          color-mix(in oklab, var(--accent) 50%, transparent);
+      }
+      .anat-code .hi {
+        background: color-mix(in oklab, var(--accent) 8%, transparent);
+        border-left: 2px solid var(--accent);
+        padding-left: 0 !important;
+        margin-left: -0;
+      }
+
+      /* ---------- privacy ---------- */
+      .privacy {
+        margin-top: 56px;
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 24px;
+      }
+      @media (max-width: 980px) {
+        .privacy {
+          grid-template-columns: 1fr;
+        }
+      }
+      .priv-card {
+        background:
+          radial-gradient(140% 100% at 0% 0%, #ffffff06, transparent 60%),
+          var(--bg-card);
+        border: 1px solid var(--line-2);
+        border-radius: 14px;
+        padding: 32px;
+      }
+      .priv-card .title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+      .priv-card .title h3 {
+        font-size: 17px;
+      }
+      .priv-card .check {
+        width: 26px;
+        height: 26px;
+        border-radius: 7px;
+        background: var(--accent-soft);
+        color: var(--accent-2);
+        display: grid;
+        place-items: center;
+      }
+      .priv-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+      }
+      .priv-list li {
+        padding: 14px 0;
+        border-top: 1px dashed var(--line);
+        display: grid;
+        grid-template-columns: 28px 1fr;
+        gap: 14px;
+        align-items: start;
+        color: var(--ink-2);
+        font-size: 13.5px;
+      }
+      .priv-list li:first-child {
+        border-top: none;
+        padding-top: 0;
+      }
+      .priv-list li:last-child {
+        padding-bottom: 0;
+      }
+      .priv-list li svg {
+        color: var(--green);
+        margin-top: 2px;
+      }
+      .priv-list li b {
+        color: var(--ink);
+        font-weight: 500;
+      }
+
+      /* network trace card */
+      .trace {
+        background: var(--bg-card);
+        border: 1px solid var(--line-2);
+        border-radius: 14px;
+        overflow: hidden;
+      }
+      .trace header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--line-2);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        color: var(--ink-3);
+        background: linear-gradient(180deg, #ffffff04, transparent);
+      }
+      .trace header .live {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--green);
+      }
+      .trace header .live .d {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 0 3px color-mix(in oklab, var(--green) 25%, transparent);
+      }
+      .trace .row {
+        display: grid;
+        grid-template-columns: 70px 1fr 64px 60px;
+        gap: 10px;
+        padding: 10px 16px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        border-top: 1px solid var(--line);
+        align-items: center;
+      }
+      .trace .row .m {
+        color: var(--accent);
+      }
+      .trace .row .u {
+        color: var(--ink-2);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .trace .row .u b {
+        color: var(--ink);
+        font-weight: 500;
+      }
+      .trace .row .s {
+        color: var(--green);
+      }
+      .trace .row .t {
+        color: var(--ink-3);
+        text-align: right;
+      }
+      .trace .none {
+        padding: 14px 16px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        color: var(--ink-4);
+        border-top: 1px dashed var(--line);
+        text-align: center;
+      }
+
+      /* ---------- faq ---------- */
+      .faq {
+        margin-top: 24px;
+        border-top: 1px solid var(--line);
+      }
+      details {
+        border-bottom: 1px solid var(--line);
+        padding: 22px 4px;
+        transition: background 0.15s;
+      }
+      details[open] {
+        background: linear-gradient(90deg, #ffffff03, transparent);
+      }
+      summary {
+        list-style: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-size: 16.5px;
+        font-weight: 500;
+        color: var(--ink);
+      }
+      summary::-webkit-details-marker {
+        display: none;
+      }
+      summary .num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--ink-4);
+        width: 36px;
+      }
+      summary .chev {
+        margin-left: auto;
+        color: var(--ink-3);
+        transition: transform 0.2s;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 1px solid var(--line-2);
+        display: grid;
+        place-items: center;
+      }
+      details[open] summary .chev {
+        transform: rotate(45deg);
+        color: var(--accent);
+        border-color: color-mix(in oklab, var(--accent) 50%, transparent);
+      }
+      details > div {
+        margin: 14px 0 4px 54px;
+        font-size: 14.5px;
+        max-width: 64ch;
+        color: var(--ink-2);
+      }
+      details code {
+        background: #ffffff06;
+        border: 1px solid var(--line-2);
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-size: 12.5px;
+        color: var(--cyan);
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      /* ---------- big footer cta ---------- */
+      .cta-block {
+        margin-top: 56px;
+        padding: 56px;
+        background:
+          radial-gradient(
+            60% 100% at 50% 0%,
+            color-mix(in oklab, var(--accent) 14%, transparent),
+            transparent 70%
+          ),
+          var(--bg-card);
+        border: 1px solid var(--line-2);
+        border-radius: 18px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .cta-block::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(to right, var(--line) 1px, transparent 1px),
+          linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+        background-size: 36px 36px;
+        mask-image: radial-gradient(
+          ellipse at 50% 0%,
+          black 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+      .cta-block > * {
+        position: relative;
+      }
+      .cta-block h2 {
+        font-size: clamp(32px, 4vw, 52px);
+      }
+      .cta-block .lede {
+        margin: 16px auto 32px;
+      }
+      .cta-block .row {
+        display: inline-flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      /* ---------- footer ---------- */
+      footer {
+        padding: 48px 28px 64px;
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1.4fr repeat(3, 1fr);
+        gap: 36px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        color: var(--ink-3);
+        border-top: 1px solid var(--line);
+      }
+      @media (max-width: 760px) {
+        footer {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      footer h5 {
+        color: var(--ink);
+        margin: 0 0 12px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      footer a:hover {
+        color: var(--ink);
+      }
+      footer .col {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      /* toast */
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: var(--bg-card);
+        color: var(--ink);
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.25s;
+        z-index: 100;
+        border: 1px solid var(--line-2);
+        box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.7);
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      /* ---------- mobile nav toggle ---------- */
+      .nav-toggle {
+        display: none;
+        margin-left: auto;
+        width: 38px;
+        height: 38px;
+        border-radius: 9px;
+        border: 1px solid var(--line-2);
+        background: linear-gradient(180deg, #ffffff08, #ffffff02);
+        color: var(--ink);
+        cursor: pointer;
+        padding: 0;
+        position: relative;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        transition:
+          border-color 0.15s,
+          background 0.15s;
+      }
+      .nav-toggle:hover {
+        border-color: var(--line-3);
+      }
+      .nav-toggle span {
+        display: block;
+        width: 16px;
+        height: 1.5px;
+        background: var(--ink);
+        border-radius: 2px;
+        transition:
+          transform 0.2s ease,
+          opacity 0.15s ease;
+        transform-origin: center;
+      }
+      .nav.open .nav-toggle span:nth-child(1) {
+        transform: translateY(5.5px) rotate(45deg);
+      }
+      .nav.open .nav-toggle span:nth-child(2) {
+        opacity: 0;
+      }
+      .nav.open .nav-toggle span:nth-child(3) {
+        transform: translateY(-5.5px) rotate(-45deg);
+      }
+      body.nav-locked {
+        overflow: hidden;
+      }
+
+      /* ============== RESPONSIVE: TABLET (≤ 860px) ============== */
+      @media (max-width: 860px) {
+        html {
+          scroll-padding-top: 64px;
+        }
+        .nav-inner {
+          padding: 10px 18px;
+          gap: 12px;
+        }
+        .brand-tag {
+          display: none;
+        }
+        .nav-toggle {
+          display: inline-flex;
+        }
+        /* When the menu is open, drop the nav's backdrop-filter so it stops
+           creating a containing block for the fixed drawer below. */
+        .nav.open {
+          backdrop-filter: none;
+          background: var(--bg);
+        }
+        .nav-links {
+          position: fixed;
+          top: 59px;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          flex-direction: column;
+          align-items: stretch;
+          gap: 0;
+          padding: 18px 22px 32px;
+          background: var(--bg);
+          border-top: 1px solid var(--line-2);
+          font-size: 16px;
+          color: var(--ink);
+          margin-left: 0;
+          transform: translateY(-8px);
+          opacity: 0;
+          pointer-events: none;
+          transition:
+            transform 0.22s ease,
+            opacity 0.18s ease;
+          overflow-y: auto;
+          z-index: 49;
+        }
+        .nav.open .nav-links {
+          transform: translateY(0);
+          opacity: 1;
+          pointer-events: auto;
+        }
+        .nav-links a {
+          padding: 16px 6px;
+          border-bottom: 1px solid var(--line);
+          color: var(--ink);
+        }
+        .nav-links a.nav-cta {
+          margin-top: 18px;
+          padding: 12px 16px;
+          border: 1px solid var(--line-2);
+          border-radius: 999px;
+          justify-content: center;
+          background: linear-gradient(180deg, var(--accent-2), var(--accent));
+          color: #0a0c10;
+          font-weight: 500;
+          border-bottom: 1px solid color-mix(in oklab, var(--accent) 60%, white);
+          box-shadow:
+            0 0 0 1px #00000020 inset,
+            0 1px 0 #ffffff50 inset,
+            0 12px 32px -10px
+              color-mix(in oklab, var(--accent) 50%, transparent);
+        }
+        .nav-links a.nav-cta .dot {
+          background: #0a0c10;
+          box-shadow: 0 0 0 3px #ffffff30;
+        }
+
+        main {
+          padding: 0 18px;
+        }
+        section {
+          padding: 64px 0;
+        }
+        .hero {
+          padding: 56px 0 48px;
+        }
+        .section-head {
+          margin-bottom: 36px;
+        }
+
+        h1 {
+          font-size: clamp(38px, 9vw, 56px);
+        }
+        h2 {
+          font-size: clamp(26px, 5.6vw, 38px);
+        }
+        .lede {
+          font-size: 16px;
+        }
+
+        /* hero */
+        .announce {
+          flex-wrap: wrap;
+          padding: 4px 4px 4px 10px;
+          font-size: 11.5px;
+          line-height: 1.4;
+        }
+        .announce .pip {
+          margin: 0 6px 0 6px;
+        }
+        .hero-frame {
+          gap: 40px;
+        }
+        .hero-meta {
+          grid-template-columns: 1fr 1fr;
+          gap: 18px 24px;
+          margin-top: 28px;
+        }
+        .hero-cta-row {
+          margin-top: 28px;
+        }
+        .hero-cta-row .btn-primary,
+        .hero-cta-row .btn-ghost {
+          flex: 1 1 auto;
+          justify-content: center;
+        }
+        .flow {
+          padding: 14px;
+          border-radius: 14px;
+        }
+        .flow-foot {
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        .logos {
+          margin-top: 44px;
+          padding-top: 28px;
+          gap: 18px 22px;
+          row-gap: 14px;
+        }
+        .logos .item[style*="margin-left: auto"] {
+          margin-left: 0 !important;
+        }
+
+        /* tool / converter */
+        .tool-bar {
+          padding: 12px 14px;
+          flex-wrap: wrap;
+          gap: 8px 12px;
+          font-size: 11px;
+        }
+        .tool-bar .breadcrumbs {
+          flex-wrap: wrap;
+          row-gap: 2px;
+        }
+        .tool-bar .right {
+          margin-left: auto;
+        }
+        .tool-input {
+          padding: 22px 18px;
+          gap: 18px;
+        }
+        .tool-output .out-bar {
+          flex-wrap: wrap;
+          padding: 10px 14px;
+          gap: 8px;
+        }
+        .out-bar .actions {
+          margin-left: auto;
+          flex-wrap: wrap;
+        }
+        .out-body {
+          padding: 18px 16px;
+          font-size: 12px;
+        }
+        .status {
+          padding: 10px 14px;
+          font-size: 10.5px;
+          flex-wrap: wrap;
+          gap: 6px 10px;
+        }
+        .status .right {
+          margin-left: auto;
+        }
+        .segmented label {
+          padding: 9px 6px;
+          font-size: 11px;
+        }
+        .segmented label svg {
+          display: none;
+        }
+
+        /* anatomy */
+        .anat {
+          gap: 32px;
+          margin-top: 36px;
+        }
+        .anat-row {
+          grid-template-columns: 1fr;
+          gap: 6px;
+          padding: 14px 0;
+        }
+        .anat-row:hover,
+        .anat-row.active {
+          padding-left: 0;
+        }
+        .anat-key {
+          font-size: 11px;
+          color: var(--ink-3);
+        }
+        .anat-preview {
+          position: static;
+        }
+        .anat-code {
+          max-height: 380px;
+          font-size: 11.5px;
+        }
+
+        /* privacy */
+        .privacy {
+          margin-top: 36px;
+        }
+        .priv-card {
+          padding: 24px 20px;
+        }
+        .priv-list li {
+          font-size: 13px;
+          grid-template-columns: 22px 1fr;
+          gap: 10px;
+        }
+        .trace .row {
+          grid-template-columns: 56px 1fr 50px;
+          row-gap: 2px;
+          padding: 10px 14px;
+          font-size: 11px;
+        }
+        .trace .row .t {
+          display: none;
+        }
+        .trace header {
+          padding: 10px 14px;
+        }
+
+        /* faq */
+        summary {
+          font-size: 15px;
+          gap: 12px;
+        }
+        summary .num {
+          width: 28px;
+          font-size: 10.5px;
+        }
+        details > div {
+          margin: 12px 0 4px 40px;
+          font-size: 13.5px;
+        }
+
+        /* cta block */
+        .cta-block {
+          margin-top: 40px;
+          padding: 40px 22px;
+          border-radius: 14px;
+        }
+        .cta-block h2 {
+          font-size: clamp(28px, 6vw, 40px);
+        }
+        .cta-block .row .btn-primary,
+        .cta-block .row .btn-ghost {
+          flex: 1 1 auto;
+          justify-content: center;
+        }
+
+        /* footer */
+        footer {
+          padding: 36px 18px 56px;
+          gap: 24px;
+        }
+      }
+
+      /* ============== RESPONSIVE: SMALL PHONE (≤ 480px) ============== */
+      @media (max-width: 480px) {
+        main {
+          padding: 0 14px;
+        }
+        section {
+          padding: 56px 0;
+        }
+        .hero {
+          padding: 44px 0 40px;
+        }
+        .nav-inner {
+          padding: 10px 14px;
+        }
+
+        h1 {
+          font-size: clamp(34px, 10vw, 48px);
+        }
+        h2 {
+          font-size: clamp(24px, 6.4vw, 34px);
+        }
+
+        .hero-meta {
+          grid-template-columns: 1fr;
+        }
+        .hero-cta-row {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .hero-cta-row .btn-primary,
+        .hero-cta-row .btn-ghost {
+          width: 100%;
+        }
+        .announce {
+          font-size: 11px;
+        }
+
+        .tool-input {
+          padding: 18px 14px;
+        }
+        .row-2 {
+          grid-template-columns: 1fr;
+        }
+        .out-body {
+          padding: 16px 14px;
+        }
+        .out-bar {
+          font-size: 10.5px;
+        }
+        .out-bar .filename {
+          word-break: break-all;
+        }
+
+        .priv-card {
+          padding: 22px 16px;
+        }
+        .trace .row {
+          grid-template-columns: 50px 1fr;
+          font-size: 10.5px;
+        }
+        .trace .row .s,
+        .trace .row .t {
+          display: none;
+        }
+
+        .cta-block {
+          padding: 32px 18px;
+        }
+        .cta-block .row {
+          flex-direction: column;
+          align-items: stretch;
+          width: 100%;
+        }
+        .cta-block .row .btn-primary,
+        .cta-block .row .btn-ghost {
+          width: 100%;
+        }
+
+        footer {
+          grid-template-columns: 1fr;
+          padding: 32px 14px 48px;
+        }
+
+        details > div {
+          margin: 10px 0 4px 36px;
+        }
+        summary .chev {
+          width: 18px;
+          height: 18px;
+        }
+      }
+
+      /* safety: break long unbreakable strings on narrow screens */
+      @media (max-width: 860px) {
+        .node,
+        .node .url,
+        .ln-p,
+        .ln-bullet,
+        .anat-desc p,
+        .priv-list li,
+        .out-bar .filename,
+        details > div {
+          overflow-wrap: anywhere;
+          word-break: break-word;
+        }
+      }
+
+      /* hide ⌘-key hints on touch devices where they're irrelevant */
+      @media (hover: none) and (pointer: coarse) {
+        .btn-primary .kbd,
+        .btn-ghost .kbd,
+        .submit .kbd {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ============== NAV ============== -->
+    <nav class="nav">
+      <div class="nav-inner">
+        <a class="brand" href="#">
+          <span class="brand-mark">S</span>
+          <span>Skillify</span>
+          <span class="brand-tag">v0.1 · alpha</span>
+        </a>
+        <button
+          class="nav-toggle"
+          id="navToggle"
+          aria-label="Toggle menu"
+          aria-expanded="false"
+          aria-controls="navLinks"
+          type="button"
+        >
+          <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links" id="navLinks">
+          <a href="#tool">Converter</a>
+          <a href="#how">Pipeline</a>
+          <a href="#anatomy">Anatomy</a>
+          <a href="#privacy">Privacy</a>
+          <a href="#faq">FAQ</a>
+          <a class="nav-cta" href="#tool"
+            ><span class="dot"></span>Open the converter</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <!-- ============== HERO ============== -->
+      <section class="hero" data-screen-label="01 Hero">
+        <div class="grid-bg"></div>
+        <div class="spotlight"></div>
+
+        <div class="hero-frame">
+          <div>
+            <a class="announce" href="#anatomy">
+              <span style="color: var(--ink-3)"
+                >Now reading: Claude Agent Skills spec</span
+              >
+              <span class="pip">NEW</span>
+              <span style="color: var(--ink)">See anatomy</span>
+              <span class="arr">→</span>
+            </a>
+            <h1>Turn any technical<br />post into <em>a skill.</em></h1>
+            <p class="lede" style="margin-top: 28px">
+              Skillify reads a URL and writes a
+              <span
+                class="mono"
+                style="
+                  color: var(--accent);
+                  background: #00000028;
+                  border: 1px solid var(--line-2);
+                  padding: 1px 6px;
+                  border-radius: 5px;
+                  font-size: 13px;
+                "
+                >Skill.md</span
+              >
+              — frontmatter, overview, patterns, pitfalls — ready to package and
+              upload as a <span class="serif">Claude Agent Skill.</span>
+              Bring your own key. We never see it.
+            </p>
+
+            <div class="hero-cta-row">
+              <a class="btn-primary" href="#tool">
+                Open the converter
+                <span class="kbd">⌘ K</span>
+              </a>
+              <a class="btn-ghost" href="#anatomy">
+                Read the spec
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M5 12h14M13 5l7 7-7 7" />
+                </svg>
+              </a>
+            </div>
+
+            <div class="hero-meta">
+              <div><b>Client-side</b>No backend. No proxy.</div>
+              <div><b>BYO key</b>Anthropic · OpenAI · Google</div>
+              <div><b>Open output</b>Plain markdown</div>
+            </div>
+          </div>
+
+          <!-- flow card -->
+          <div class="flow" aria-hidden="true">
+            <div class="flow-head">
+              <span class="lights"><i></i><i></i><i></i></span>
+              <span>~/skills/build</span>
+              <span class="right">idle</span>
+            </div>
+            <div class="flow-body">
+              <div class="node">
+                <div class="node-label">
+                  <span>Source</span><span class="tag">URL</span>
+                </div>
+                <div class="url">
+                  <span class="host">joshwcomeau.com</span
+                  ><span class="path">/animation/scroll-driven-animations</span>
+                </div>
+              </div>
+              <div class="connector">
+                <span class="pkt">·· fetch · 8.4kb · 200ms ··</span>
+              </div>
+              <div class="node">
+                <div class="node-label">
+                  <span>Distilled by</span
+                  ><span class="tag">claude-sonnet-4-6</span>
+                </div>
+                <div class="url" style="color: var(--ink-2)">
+                  strip nav · keep code · summarize patterns
+                </div>
+              </div>
+              <div class="connector">
+                <span class="pkt">·· write · 471 lines ··</span>
+              </div>
+              <div class="node md">
+                <div><span class="fm">---</span></div>
+                <div>
+                  <span class="key">name:</span>
+                  <span class="val">CSS Scroll Animations</span>
+                </div>
+                <div>
+                  <span class="key">description:</span>
+                  <span class="val">Build scroll-driven CSS…</span>
+                </div>
+                <div><span class="fm">---</span></div>
+                <div>&nbsp;</div>
+                <div><span class="h">## Overview</span></div>
+                <div>Use this Skill when…</div>
+              </div>
+            </div>
+            <div class="flow-foot">
+              <span><b>blogpost.html</b> · 8.4kb</span>
+              <span>distill →</span>
+              <span><b>Skill.md</b> · 94 lines</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- compatibility strip -->
+        <div class="logos">
+          <span class="logos-label">Works with</span>
+          <span class="item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2 2 20h20L12 2zm0 6 5.5 10h-11L12 8z" />
+            </svg>
+            Anthropic API
+          </span>
+          <span class="item">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+            >
+              <circle cx="12" cy="12" r="9" />
+              <path d="M3 12h18M12 3a13 13 0 0 1 0 18M12 3a13 13 0 0 0 0 18" />
+            </svg>
+            OpenAI API
+          </span>
+          <span class="item">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+            >
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+            </svg>
+            Any agent that loads .md skills
+          </span>
+          <span class="item" style="margin-left: auto; color: var(--ink-3)">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M12 1v6m0 10v6M4.2 4.2l4.3 4.3m7 7 4.3 4.3M1 12h6m10 0h6M4.2 19.8l4.3-4.3m7-7 4.3-4.3"
+              />
+            </svg>
+            no SaaS · no telemetry · no lock-in
+          </span>
+        </div>
+      </section>
+
+      <!-- ============== TOOL ============== -->
+      <section
+        id="tool"
+        data-screen-label="02 Converter"
+        style="padding-top: 56px"
+      >
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">The converter</span>
+            <h2 style="margin-top: 14px">Paste a URL.<br />Get a skill.</h2>
+          </div>
+          <p style="max-width: 56ch">
+            The whole pipeline runs in your browser. We fetch the article, strip
+            it to readable markdown, and ask your model to author a skill. Your
+            API key never leaves this tab — there is no Skillify server for it
+            to leave to.
+          </p>
+        </div>
+
+        <div class="tool-shell">
+          <div class="tool-bar" id="toolBar">
+            <span class="lights"><i></i><i></i><i></i></span>
+            <span class="breadcrumbs">
+              <b>skillify</b><span class="slash">/</span><span>converter</span
+              ><span class="slash">/</span
+              ><span style="color: var(--accent)" id="bcAction">~ idle</span>
+            </span>
+            <span class="right">
+              <span id="toolStatusText" style="font-size: 11px"
+                >waiting for input</span
+              >
+              <span class="pulse"></span>
+            </span>
+          </div>
+
+          <div class="tool-grid">
+            <!-- INPUT -->
+            <form class="tool-input" id="form" autocomplete="off">
+              <div class="field">
+                <label class="field-label" for="url">
+                  <span>Source URL <span class="req">*</span></span>
+                  <span class="field-hint">tutorials, RFCs, MDN</span>
+                </label>
+                <div class="input-wrap has-prefix">
+                  <input
+                    id="url"
+                    name="url"
+                    type="text"
+                    required
+                    value="www.joshwcomeau.com/animation/scroll-driven-animations"
+                    placeholder="example.com/your-favorite-post"
+                  />
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field-label">
+                  <span>Provider <span class="req">*</span></span>
+                  <span class="field-hint">choose your llm</span>
+                </label>
+                <div class="segmented">
+                  <input
+                    type="radio"
+                    id="prov-ant"
+                    name="provider"
+                    value="anthropic"
+                    checked
+                  />
+                  <label for="prov-ant">
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M12 3 2 21h6l4-9 4 9h6L12 3z" />
+                    </svg>
+                    Anthropic
+                  </label>
+                  <input
+                    type="radio"
+                    id="prov-oai"
+                    name="provider"
+                    value="openai"
+                  />
+                  <label for="prov-oai">
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                    >
+                      <circle cx="12" cy="12" r="9" />
+                      <path
+                        d="M3 12h18M12 3a13 13 0 0 1 0 18M12 3a13 13 0 0 0 0 18"
+                      />
+                    </svg>
+                    OpenAI
+                  </label>
+                  <input
+                    type="radio"
+                    id="prov-goo"
+                    name="provider"
+                    value="google"
+                  />
+                  <label for="prov-goo">
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                    >
+                      <path
+                        d="M20.3 12.2c0-.6-.1-1.3-.2-1.8H12v3.4h4.7c-.2 1-.8 1.9-1.7 2.4v2h2.7c1.6-1.5 2.6-3.7 2.6-6z"
+                      />
+                      <path
+                        d="M12 21c2.4 0 4.4-.8 5.9-2.1l-2.7-2.1c-.8.5-1.9.8-3.2.8-2.5 0-4.6-1.7-5.3-3.9H3.9v2.1C5.4 19.1 8.5 21 12 21z"
+                      />
+                      <path
+                        d="M6.7 13.7c-.2-.6-.3-1.1-.3-1.7s.1-1.2.3-1.7V8.2H3.9C3.3 9.4 3 10.7 3 12s.3 2.6.9 3.8l2.8-2.1z"
+                      />
+                      <path
+                        d="M12 6.3c1.4 0 2.6.5 3.6 1.4l2.7-2.7C16.4 3.5 14.4 3 12 3 8.5 3 5.4 4.9 3.9 7.8l2.8 2.2c.7-2.3 2.8-3.7 5.3-3.7z"
+                      />
+                    </svg>
+                    Google
+                  </label>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="model">
+                  <span>Model</span>
+                  <span class="field-hint" id="modelHint"
+                    >larger = better skill</span
+                  >
+                </label>
+                <select id="model" name="model"></select>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="apikey">
+                  <span>API key <span class="req">*</span></span>
+                  <span class="field-hint">in-memory only</span>
+                </label>
+                <input
+                  id="apikey"
+                  name="apikey"
+                  type="password"
+                  placeholder="sk-ant-…"
+                />
+                <div class="keyrow">
+                  <svg
+                    class="lock"
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect x="3" y="11" width="18" height="11" rx="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                  <span
+                    >Sent only to your provider.
+                    <b>Never persisted, never proxied.</b></span
+                  >
+                </div>
+                <div class="api-key-warn">
+                  Use a temporary or low-limit key. Browser apps cannot fully
+                  protect keys from malicious extensions, compromised
+                  dependencies, or XSS attacks.
+                </div>
+              </div>
+
+              <button type="submit" class="submit" id="runBtn">
+                <span id="runBtnLabel">Distill into skill</span>
+                <span class="kbd">⌘ ⏎</span>
+              </button>
+            </form>
+
+            <!-- OUTPUT -->
+            <div class="tool-output">
+              <div class="out-bar">
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                >
+                  <path
+                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                  />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>
+                <span class="filename" id="outName">untitled-skill.md</span>
+                <span style="color: var(--ink-4)">·</span>
+                <span id="outMeta">— lines · — bytes</span>
+                <div class="actions">
+                  <button id="copyBtn" disabled>
+                    <svg
+                      width="11"
+                      height="11"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      style="margin-right: 5px; vertical-align: -1px"
+                    >
+                      <rect x="9" y="9" width="13" height="13" rx="2" />
+                      <path
+                        d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                      />
+                    </svg>
+                    Copy
+                  </button>
+                  <button id="dlBtn" disabled>
+                    <svg
+                      width="11"
+                      height="11"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      style="margin-right: 5px; vertical-align: -1px"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Download .md
+                  </button>
+                </div>
+              </div>
+
+              <div class="out-body md" id="output">
+                <div class="placeholder">
+                  <div class="title"># readme — what skillify will produce</div>
+                  <div class="step">
+                    <span class="n">01</span>
+                    <div>
+                      <b>YAML frontmatter</b>
+                      <div class="desc">
+                        name &amp; description for the skill router
+                      </div>
+                    </div>
+                  </div>
+                  <div class="step">
+                    <span class="n">02</span>
+                    <div>
+                      <b>When to use</b>
+                      <div class="desc">
+                        disambiguating triggers · post-vs-not table
+                      </div>
+                    </div>
+                  </div>
+                  <div class="step">
+                    <span class="n">03</span>
+                    <div>
+                      <b>Core mental model</b>
+                      <div class="desc">
+                        the one paragraph that unlocks everything
+                      </div>
+                    </div>
+                  </div>
+                  <div class="step">
+                    <span class="n">04</span>
+                    <div>
+                      <b>3–6 named patterns</b>
+                      <div class="desc">
+                        code example + "use this for" bullets
+                      </div>
+                    </div>
+                  </div>
+                  <div class="step">
+                    <span class="n">05</span>
+                    <div>
+                      <b>Pitfalls</b>
+                      <div class="desc">
+                        bad/good code pairs · ordering rules
+                      </div>
+                    </div>
+                  </div>
+                  <div class="step">
+                    <span class="n">06</span>
+                    <div>
+                      <b>Reference</b>
+                      <div class="desc">
+                        compact lookup table of APIs &amp; flags
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="secPanel" class="sec-panel" hidden></div>
+
+              <div class="status" id="status">
+                <span id="statusText">Idle. Fill in the form and hit run.</span>
+                <span class="right">
+                  <span class="mono" id="tokenMeter">0 tokens</span>
+                  <span class="mono" style="color: var(--ink-4)">·</span>
+                  <span
+                    class="mono"
+                    id="elapsedMeter"
+                    style="color: var(--ink-4)"
+                    >0.0s</span
+                  >
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============== HOW IT WORKS / BENTO ============== -->
+      <section id="how" data-screen-label="03 Pipeline">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Pipeline</span>
+            <h2 style="margin-top: 14px">Four passes,<br />one file.</h2>
+          </div>
+          <p style="max-width: 56ch">
+            Each step runs locally. There is no upload step, no headless browser
+            farm, no log line written about your URL. Open devtools — you can
+            watch every byte.
+          </p>
+        </div>
+
+        <div class="bento">
+          <div class="cell span-3">
+            <div class="num"><b>01</b> &nbsp; FETCH &nbsp;·&nbsp; ~200ms</div>
+            <div class="body">
+              <h3>Browser-side fetch</h3>
+              <p>
+                A CORS-permissive reader returns the page as plain markdown. We
+                never see the request.
+              </p>
+            </div>
+            <div class="cell-stage">
+              <div class="vz-fetch">
+                <div class="ring">
+                  <span class="pin"></span>
+                  <span class="core">GET</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cell span-3">
+            <div class="num"><b>02</b> &nbsp; EXTRACT &nbsp;·&nbsp; ~50ms</div>
+            <div class="body">
+              <h3>Strip the chrome</h3>
+              <p>
+                Drop nav, ads, comments, tracking scripts. Keep headings, prose,
+                code fences, tables.
+              </p>
+            </div>
+            <div class="cell-stage">
+              <div class="vz-extract">
+                <div class="ln cut" style="width: 70%"></div>
+                <div class="ln kept" style="width: 90%"></div>
+                <div class="ln kept" style="width: 80%"></div>
+                <div class="ln cut" style="width: 60%"></div>
+                <div class="ln kept" style="width: 95%"></div>
+                <div class="ln kept" style="width: 70%"></div>
+                <div class="ln cut" style="width: 50%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cell span-4">
+            <div class="num"><b>03</b> &nbsp; DISTILL &nbsp;·&nbsp; ~12s</div>
+            <div class="body">
+              <h3>Author the skill, not a summary</h3>
+              <p>
+                A tuned system prompt asks your model to produce SKILL.md, not a
+                recap. The output has the right shape, in the right tone, with
+                code that actually compiles.
+              </p>
+            </div>
+            <div class="cell-stage" style="height: 130px">
+              <div class="vz-distill">
+                <div class="stack">
+                  <div class="row"></div>
+                  <div class="row"></div>
+                  <div class="row"></div>
+                  <div class="row"></div>
+                  <div class="row"></div>
+                  <div class="row"></div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="stack right">
+                  <div class="row"></div>
+                  <div class="row"></div>
+                  <div class="row"></div>
+                  <div class="row"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cell span-2">
+            <div class="num"><b>04</b> &nbsp; SAVE</div>
+            <div class="body">
+              <h3>Drop in <span class="serif">skills/</span></h3>
+              <p>Plain markdown. Loads in any agent that reads .md skills.</p>
+            </div>
+            <div class="cell-stage">
+              <div class="vz-save">
+                <div class="file">
+                  <div class="lines"><i></i><i></i><i></i><i></i><i></i></div>
+                  <div class="name">SKILL.md</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============== ANATOMY ============== -->
+      <section id="anatomy" data-screen-label="04 Anatomy">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Anatomy of a skill</span>
+            <h2 style="margin-top: 14px">What every field<br />needs to do.</h2>
+          </div>
+          <p style="max-width: 56ch">
+            A Claude Agent Skill is a directory anchored by a
+            <span class="mono" style="color: var(--accent)">Skill.md</span>
+            file. The <em class="serif">description</em> is what the router
+            reads. The <em class="serif">body</em> is what Claude reads when it
+            loads you.
+          </p>
+        </div>
+
+        <div class="anat">
+          <div class="anat-list" id="anatList">
+            <div class="anat-row active" data-section="frontmatter">
+              <div class="anat-key">name:</div>
+              <div class="anat-desc">
+                <h4>Title Cased. Max 64 chars.</h4>
+                <p>
+                  Human-readable, no quotes. Folder name must match exactly —
+                  e.g.
+                  <span class="mono" style="color: var(--cyan)"
+                    >CSS Scroll Animations</span
+                  >.
+                </p>
+              </div>
+            </div>
+            <div class="anat-row" data-section="description">
+              <div class="anat-key">description:</div>
+              <div class="anat-desc">
+                <h4>One sentence. ≤ 200 chars. Action-shaped.</h4>
+                <p>
+                  Starts with a verb. Names the exact APIs and situation. The
+                  router reads <em>only this</em> to decide whether to load you.
+                </p>
+              </div>
+            </div>
+            <div class="anat-row" data-section="dependencies">
+              <div class="anat-key">dependencies:</div>
+              <div class="anat-desc">
+                <h4>Optional. Packages the Skill needs.</h4>
+                <p>
+                  Include only if the post covers code requiring specific
+                  packages — e.g.
+                  <span class="mono" style="color: var(--cyan)"
+                    >python>=3.8, pandas>=1.5</span
+                  >. Omit entirely otherwise.
+                </p>
+              </div>
+            </div>
+            <div class="anat-row" data-section="overview">
+              <div class="anat-key">## Overview</div>
+              <div class="anat-desc">
+                <h4>What this Skill does and when to reach for it.</h4>
+                <p>
+                  One short paragraph. No marketing. Sets the scope so Claude
+                  knows exactly what this Skill covers.
+                </p>
+              </div>
+            </div>
+            <div class="anat-row" data-section="when">
+              <div class="anat-key">## When to use</div>
+              <div class="anat-desc">
+                <h4>Concrete triggers + negative examples.</h4>
+                <p>
+                  Bullet list of situations this Skill applies to. Include 1–2
+                  "do NOT use" cases — they prevent mis-routing.
+                </p>
+              </div>
+            </div>
+            <div class="anat-row" data-section="patterns">
+              <div class="anat-key">## Key patterns</div>
+              <div class="anat-desc">
+                <h4>3–5 named recipes with code.</h4>
+                <p>
+                  Each subsection: one-line description, fenced code example
+                  faithful to source, "Use this for:" list.
+                </p>
+              </div>
+            </div>
+            <div class="anat-row" data-section="pitfalls">
+              <div class="anat-key">## Pitfalls</div>
+              <div class="anat-desc">
+                <h4>2–4 footguns, bad/good pairs.</h4>
+                <p>
+                  Every API has gotchas. Bad/good code pairs are worth more than
+                  prose warnings.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="anat-preview">
+            <header>
+              <span class="lights"><i></i><i></i><i></i></span>
+              <span class="filename">Skill.md</span>
+              <span class="right"
+                ><span>UTF-8</span><span>·</span><span>md</span></span
+              >
+            </header>
+            <div class="anat-code" id="anatCode">
+              <span class="ln fm-line">---</span>
+              <span class="ln" data-sec="frontmatter"
+                ><span class="fm-key">name:</span> CSS Scroll Animations</span
+              >
+              <span class="ln" data-sec="description"
+                ><span class="fm-key">description:</span> Build scroll-driven
+                CSS</span
+              >
+              <span class="ln" data-sec="description"
+                >animations using
+                <span class="code">animation-timeline</span>,</span
+              >
+              <span class="ln" data-sec="description"
+                ><span class="code">view()</span> and
+                <span class="code">scroll()</span> without JS.</span
+              >
+              <span class="ln" data-sec="dependencies"
+                ><span class="fm-key">dependencies:</span>
+                <span style="color: var(--ink-3)"
+                  ># omit if not needed</span
+                ></span
+              >
+              <span class="ln fm-line">---</span>
+              <span class="ln">&nbsp;</span>
+              <span class="ln h1"># CSS Scroll Animations Skill</span>
+              <span class="ln">&nbsp;</span>
+              <span class="ln h2" data-sec="overview">## Overview</span>
+              <span class="ln">&nbsp;</span>
+              <span class="ln" data-sec="overview"
+                >Use this Skill when implementing scroll-scrubbed</span
+              >
+              <span class="ln" data-sec="overview"
+                >UI effects without JavaScript. Add
+                <span class="code">@supports</span></span
+              >
+              <span class="ln" data-sec="overview"
+                >guard for progressive enhancement.</span
+              >
+              <span class="ln">&nbsp;</span>
+              <span class="ln h2" data-sec="when">## When to use</span>
+              <span class="ln">&nbsp;</span>
+              <span class="ln" data-sec="when"
+                ><span class="bullet">›</span> Fade/slide elements on scroll
+                entry</span
+              >
+              <span class="ln" data-sec="when"
+                ><span class="bullet">›</span> Sticky header that transforms on
+                scroll</span
+              >
+              <span class="ln" data-sec="when"
+                ><span class="bullet">›</span> <mark class="hl">NOT</mark>:
+                time-based animations, IE support</span
+              >
+              <span class="ln">&nbsp;</span>
+              <span class="ln h2" data-sec="patterns">## Key patterns</span>
+              <span class="ln">&nbsp;</span>
+              <span class="ln" data-sec="patterns">### Fade on entry</span>
+              <span class="ln" data-sec="patterns"
+                ><span class="code">animation-timeline: view()</span></span
+              >
+              <span class="ln" data-sec="patterns"
+                ><span class="code"
+                  >animation-range: entry 0% cover 30%</span
+                ></span
+              >
+              <span class="ln">&nbsp;</span>
+              <span class="ln h2" data-sec="pitfalls">## Pitfalls</span>
+              <span class="ln">&nbsp;</span>
+              <span class="ln" data-sec="pitfalls"
+                ><span class="bullet">›</span>
+                <span class="code">animation</span> shorthand resets</span
+              >
+              <span class="ln" data-sec="pitfalls">
+                <span class="code">animation-timeline</span> to
+                <span class="code">auto</span> —</span
+              >
+              <span class="ln" data-sec="pitfalls">
+                declare timeline <mark class="hl">after</mark> the
+                shorthand.</span
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============== PRIVACY ============== -->
+      <section id="privacy" data-screen-label="05 Privacy">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Trust model</span>
+            <h2 style="margin-top: 14px">
+              Your key,<br />your problem. <span class="serif">Literally.</span>
+            </h2>
+          </div>
+          <p style="max-width: 56ch">
+            Skillify is a static page. There is no Skillify backend, no
+            analytics endpoint, no log pipeline. Two outbound calls happen:
+            one to <code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent)">r.jina.ai</code>
+            (the URL reader) and one to your model provider.
+          </p>
+        </div>
+
+        <div class="privacy">
+          <div class="priv-card">
+            <div class="title">
+              <span class="check"
+                ><svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.4"
+                >
+                  <polyline points="20 6 9 17 4 12" /></svg
+              ></span>
+              <h3>What we promise</h3>
+            </div>
+            <ul class="priv-list">
+              <li>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.2"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span
+                  ><b>Key never leaves the tab.</b> It's used once, in-memory,
+                  to call your provider. Not stored, not echoed, not sent
+                  anywhere except the provider's own API.</span
+                >
+              </li>
+              <li>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.2"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span
+                  ><b>No Skillify server.</b> The page is HTML + JS, served as
+                  a static asset. There is nothing for us to log, breach, or
+                  subpoena.</span
+                >
+              </li>
+              <li>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.2"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span
+                  ><b>Verifiable.</b> Open devtools → Network. Run the
+                  converter. You'll see one call to
+                  <code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent)">r.jina.ai</code>
+                  and one call to your model. That's the entire surface area.</span
+                >
+              </li>
+              <li>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.2"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span
+                  ><b>Output is yours.</b> The skill file is plain markdown.
+                  MIT-licensed. No watermarks, no required attribution.</span
+                >
+              </li>
+              <li>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.2"
+                  style="color: var(--accent); flex-shrink: 0; margin-top: 1px"
+                >
+                  <path d="M10.3 3.6L1.6 18a2 2 0 001.7 3h17.4a2 2 0 001.7-3L13.7 3.6a2 2 0 00-3.4 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <span
+                  ><b>r.jina.ai receives your URL.</b> It does not receive your
+                  API key, but it does see the URL you submit. Do not enter
+                  private, signed, or authentication-gated URLs.</span
+                >
+              </li>
+              <li>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.2"
+                  style="color: var(--accent); flex-shrink: 0; margin-top: 1px"
+                >
+                  <path d="M10.3 3.6L1.6 18a2 2 0 001.7 3h17.4a2 2 0 001.7-3L13.7 3.6a2 2 0 00-3.4 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <span
+                  ><b>Generated skills are untrusted until reviewed.</b> A
+                  malicious source page may attempt to influence the generated
+                  Skill.md. Skillify scans output for suspicious content, but
+                  always review before running a skill in an agent.</span
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div class="trace">
+            <header>
+              <span>network · skillify</span>
+              <span class="live"><span class="d"></span> live trace</span>
+            </header>
+            <div class="row">
+              <span class="m">GET</span>
+              <span class="u"><b>r.jina.ai</b>/https://...</span>
+              <span class="s">200</span>
+              <span class="t">182ms</span>
+            </div>
+            <div class="row">
+              <span class="m">POST</span>
+              <span class="u"><b>api.anthropic.com</b>/v1/messages</span>
+              <span class="s">200</span>
+              <span class="t">11.4s</span>
+            </div>
+            <div class="none">
+              — end of trace · 2 requests · 0 to skillify —
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============== FAQ ============== -->
+      <section id="faq" data-screen-label="06 FAQ">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Engineers ask</span>
+            <h2 style="margin-top: 14px">FAQ.</h2>
+          </div>
+          <p style="max-width: 56ch">
+            Anything not covered here, the answer is in the page source. The
+            repo is the page.
+          </p>
+        </div>
+
+        <div class="faq">
+          <details open>
+            <summary>
+              <span class="num">01</span
+              ><span>Why a skill instead of just a system prompt?</span
+              ><span class="chev">+</span>
+            </summary>
+            <div>
+              Skills are scoped. They're loaded by a router only when relevant,
+              so you can stack dozens without blowing up your context window. A
+              system prompt that contains every technique you'd ever want is a
+              system prompt that no longer steers reliably.
+            </div>
+          </details>
+          <details>
+            <summary>
+              <span class="num">02</span
+              ><span
+                >How is this different from feeding the URL straight into
+                Claude?</span
+              ><span class="chev">+</span>
+            </summary>
+            <div>
+              The output of "summarize this post" is a summary. The output of
+              Skillify is a skill — a file with the right shape that an agent
+              can reuse next month, next year, in a context it's never seen,
+              against a problem the post never explicitly addressed.
+            </div>
+          </details>
+          <details>
+            <summary>
+              <span class="num">03</span
+              ><span>What providers and models work?</span
+              ><span class="chev">+</span>
+            </summary>
+            <div>
+              Anthropic (Opus 4.7, Sonnet 4.6, Haiku 4.5), OpenAI (gpt-5.5,
+              gpt-5, gpt-4.1, gpt-4o, o3, o4-mini, o1 and their variants),
+              Google (Gemini 3.1 Pro / 3 Flash / 3.1 Flash-Lite previews, plus
+              stable gemini-2.5-pro, gemini-2.5-flash, gemini-2.5-flash-lite).
+              Any model with a 100k+ context window produces a solid skill;
+              nano/mini/lite variants are faster but flatter.
+            </div>
+          </details>
+          <details>
+            <summary>
+              <span class="num">04</span
+              ><span>Can it handle paywalled or auth-gated content?</span
+              ><span class="chev">+</span>
+            </summary>
+            <div>
+              No. Skillify reads what the public web sees. If a post is behind a
+              login, paste it into a gist and point Skillify at the raw URL.
+            </div>
+          </details>
+          <details>
+            <summary>
+              <span class="num">05</span><span>What about CORS?</span
+              ><span class="chev">+</span>
+            </summary>
+            <div>
+              We use a public read-only reader at <code>r.jina.ai</code> that
+              returns clean markdown for any URL. It only ever sees URLs, never
+              your API key. If you'd rather not use it, fork the page and route
+              fetches through your own reader.
+            </div>
+          </details>
+          <details>
+            <summary>
+              <span class="num">06</span
+              ><span>Where does my key actually go?</span
+              ><span class="chev">+</span>
+            </summary>
+            <div>
+              Straight to <code>api.anthropic.com/v1/messages</code> or
+              <code>api.openai.com/v1/chat/completions</code>, with the
+              <code>anthropic-dangerous-direct-browser-access</code> header
+              where required. We do not proxy or intercept.
+            </div>
+          </details>
+          <details>
+            <summary>
+              <span class="num">07</span
+              ><span>Can I edit the system prompt?</span
+              ><span class="chev">+</span>
+            </summary>
+            <div>
+              Yes — it's all in the page source. Fork it. The repo is the page.
+              View source, find the <code>SYS_PROMPT</code> constant, change it.
+            </div>
+          </details>
+        </div>
+
+        <!-- big cta -->
+        <div class="cta-block">
+          <span
+            class="eyebrow"
+            style="justify-content: center; display: inline-flex"
+            >Ready</span
+          >
+          <h2 style="margin-top: 18px">
+            Distill your<br />first skill in <em class="serif">~12s.</em>
+          </h2>
+          <p class="lede" style="text-align: center">
+            Bring a URL, bring a key. Walk away with a skill.
+          </p>
+          <div class="row">
+            <a class="btn-primary" href="#tool">
+              Open the converter
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M5 12h14M13 5l7 7-7 7" />
+              </svg>
+            </a>
+            <a class="btn-ghost" href="#anatomy">Read the spec</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="col">
+        <div class="brand" style="margin-bottom: 12px">
+          <span class="brand-mark">S</span>
+          <span style="color: var(--ink)">Skillify</span>
+        </div>
+        <span style="max-width: 36ch; color: var(--ink-3); line-height: 1.6"
+          >A static page for engineers who don't want another SaaS in their
+          stack. Fork it, host it, change it.</span
+        >
+        <span
+          style="
+            margin-top: 14px;
+            max-width: 36ch;
+            color: var(--ink-3);
+            line-height: 1.6;
+          "
+        >
+          made by
+          <a
+            href="https://twitter.com/lukyvj"
+            target="_blank"
+            rel="noopener noreferrer"
+            style="color: var(--accent-2); border-bottom: 1px dashed color-mix(in oklab, var(--accent) 40%, transparent);"
+            >@LukyVj</a
+          >
+          — And, let's be honest, a sprinkle of
+          <span class="serif" style="color: var(--ink-2)">AI.</span>
+        </span>
+      </div>
+      <div class="col">
+        <h5>Product</h5>
+        <a href="#tool">Converter</a>
+        <a href="#how">Pipeline</a>
+        <a href="#anatomy">Anatomy</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div class="col">
+        <h5>Spec</h5>
+        <a href="#">Skill.md format</a>
+        <a href="#">System prompt</a>
+        <a href="#">Example output</a>
+      </div>
+      <div class="col">
+        <h5>Legal-ish</h5>
+        <a href="#">MIT · no warranties</a>
+        <a href="#">Privacy</a>
+        <span style="color: var(--ink-4)">v0.1 · 2026</span>
+      </div>
+    </footer>
+
+    <div class="toast" id="toast">copied</div>
+
+    <script src="app.js"></script>
+
+  </body>
+</html>
