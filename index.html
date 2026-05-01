@@ -52,6 +52,15 @@
       content="Skillify — turn any technical post into an LLM skill"
     />
 
+    <link rel="icon" href="/favicon/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon/favicon-48.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/favicon/site.webmanifest" />
+    <meta name="theme-color" content="#080A0F" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -197,24 +206,8 @@
       .brand-mark {
         width: 24px;
         height: 24px;
-        border-radius: 7px;
-        background: conic-gradient(
-          from 210deg at 50% 50%,
-          oklch(74% 0.16 55),
-          oklch(78% 0.13 80),
-          oklch(72% 0.16 55),
-          oklch(74% 0.16 55)
-        );
-        color: #0a0c10;
-        display: grid;
-        place-items: center;
-        font-family: "JetBrains Mono", monospace;
-        font-weight: 700;
-        font-size: 12px;
-        box-shadow:
-          0 0 0 1px #ffffff20 inset,
-          0 1px 0 #ffffff30 inset,
-          0 0 12px -2px color-mix(in oklab, var(--accent) 50%, transparent);
+        flex-shrink: 0;
+        filter: drop-shadow(0 0 4px rgba(246, 140, 54, 0.4));
       }
       .brand-tag {
         font-family: "JetBrains Mono", monospace;
@@ -2599,7 +2592,7 @@
     <nav class="nav">
       <div class="nav-inner">
         <a class="brand" href="#">
-          <span class="brand-mark">S</span>
+          <svg class="brand-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#080A0F"/><rect x="12" y="12" width="488" height="488" rx="100" fill="none" stroke="#f68c36" stroke-width="12"/><text x="256" y="334" text-anchor="middle" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="342" font-weight="850" letter-spacing="-18" fill="#F8FAFC">S</text><rect x="354" y="390" width="68" height="28" rx="7" fill="#f68c36"/></svg>
           <span>Skillify</span>
           <span class="brand-tag">v0.1 · alpha</span>
         </a>
@@ -3734,7 +3727,7 @@
     <footer>
       <div class="col">
         <div class="brand" style="margin-bottom: 12px">
-          <span class="brand-mark">S</span>
+          <svg class="brand-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#080A0F"/><rect x="12" y="12" width="488" height="488" rx="100" fill="none" stroke="#f68c36" stroke-width="12"/><text x="256" y="334" text-anchor="middle" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="342" font-weight="850" letter-spacing="-18" fill="#F8FAFC">S</text><rect x="354" y="390" width="68" height="28" rx="7" fill="#f68c36"/></svg>
           <span style="color: var(--ink)">Skillify</span>
         </div>
         <span style="max-width: 36ch; color: var(--ink-3); line-height: 1.6"
