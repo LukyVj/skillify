@@ -5,6 +5,9 @@ const scriptSrc = `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" :
 const csp = `default-src 'self'; ${scriptSrc}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: https://www.googletagmanager.com; connect-src 'self' https://r.jina.ai https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'; upgrade-insecure-requests`;
 
 const nextConfig: NextConfig = {
+  experimental: {
+    viewTransition: true,
+  },
   async headers() {
     return [
       {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useLayoutEffect, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "skillify-theme";
 
@@ -23,45 +23,59 @@ function applyTheme(mode: "light" | "dark") {
 
 export function ThemeToggle() {
   const [mode, setMode] = useState<"light" | "dark">("dark");
+  const transitioning = useRef(false);
 
   useLayoutEffect(() => {
     setMode(readDomTheme());
   }, []);
 
   const toggle = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-    setMode((prev) => {
-      const next = prev === "light" ? "dark" : "light";
+    if (transitioning.current) return;
 
-      if (
-        !document.startViewTransition ||
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches
-      ) {
-        applyTheme(next);
-        return next;
-      }
+    const next = mode === "light" ? "dark" : "light";
+    const html = document.documentElement;
 
-      const { clientX: x, clientY: y } = e;
-      const radius = Math.hypot(
+    if (
+      !document.startViewTransition ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      applyTheme(next);
+      setMode(next);
+      return;
+    }
+
+    const { clientX: x, clientY: y } = e;
+    transitioning.current = true;
+    html.dataset.themeTransition = "";
+
+    const cleanup = () => {
+      transitioning.current = false;
+      delete html.dataset.themeTransition;
+      setMode(next);
+    };
+
+    const vt = document.startViewTransition(() => applyTheme(next));
+
+    vt.ready.then(() => {
+      const endRadius = Math.hypot(
         Math.max(x, window.innerWidth - x),
-        Math.max(y, window.innerHeight - y)
+        Math.max(y, window.innerHeight - y),
       );
-      const clip = `circle(${radius}px at ${x}px ${y}px)`;
+      document.documentElement.animate(
+        [
+          { clipPath: `circle(0px at ${x}px ${y}px)` },
+          { clipPath: `circle(${endRadius}px at ${x}px ${y}px)` },
+        ],
+        {
+          duration: 400,
+          easing: "ease-in",
+          pseudoElement: "::view-transition-new(root)",
+        },
+      );
+    }).catch(() => {});
 
-      document.documentElement.dataset.themeTransition = "";
-      const vt = document.startViewTransition(() => applyTheme(next));
-      vt.ready.then(() => {
-        document.documentElement.animate(
-          { clipPath: ["circle(0px at " + x + "px " + y + "px)", clip] },
-          { duration: 400, easing: "ease-in", pseudoElement: "::view-transition-new(root)" }
-        );
-      });
-      vt.finished.then(() => {
-        delete document.documentElement.dataset.themeTransition;
-      });
-
-      return next;
-    });
-  }, []);
+    vt.finished.then(cleanup).catch(cleanup);
+  }, [mode]);
 
   const isLight = mode === "light";
   const label = isLight ? "Light theme on — switch to dark" : "Dark theme on — switch to light";
