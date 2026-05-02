@@ -981,8 +981,7 @@ main p { color: var(--ink-2); }
   border: 1px solid var(--line-2);
   border-radius: 10px;
 }
-.segmented input { display: none; }
-.segmented label {
+.segmented button {
   cursor: pointer;
   padding: 9px 10px;
   border-radius: 6px;
@@ -996,15 +995,17 @@ main p { color: var(--ink-2); }
   gap: 8px;
   transition: background 0.15s, color 0.15s;
   border: 1px solid transparent;
+  background: none;
+  width: 100%;
 }
-.segmented input:checked + label {
+.segmented button[data-active] {
   background: linear-gradient(180deg, #ffffff10, #ffffff04);
   color: var(--ink);
   border-color: var(--line-2);
   box-shadow: 0 1px 0 #ffffff10 inset;
 }
-.segmented label svg { color: var(--ink-3); }
-.segmented input:checked + label svg { color: var(--accent); }
+.segmented button svg { color: var(--ink-3); }
+.segmented button[data-active] svg { color: var(--accent); }
 
 .keyrow {
   display: flex;
@@ -1536,8 +1537,8 @@ details code { background: #ffffff06; border: 1px solid var(--line-2); padding: 
   .out-body { padding: 18px 16px; font-size: 12px; }
   .status { padding: 10px 14px; font-size: 10.5px; flex-wrap: wrap; gap: 6px 10px; }
   .status .right { margin-left: auto; }
-  .segmented label { padding: 9px 6px; font-size: 11px; }
-  .segmented label svg { display: none; }
+  .segmented button { padding: 9px 6px; font-size: 11px; }
+  .segmented button svg { display: none; }
 
   .anat { gap: 32px; margin-top: 36px; }
   .anat-row { grid-template-columns: 1fr; gap: 6px; padding: 14px 0; }

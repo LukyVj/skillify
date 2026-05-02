@@ -102,67 +102,67 @@ const LINT_RULES: {
   pattern: RegExp;
   message: string;
 }[] = [
-  {
-    id: "env-access",
-    severity: "critical",
-    pattern: /(process\.env|\.env|environment variable|env var)/i,
-    message: "References environment variables or .env files.",
-  },
-  {
-    id: "secret-exfiltration",
-    severity: "critical",
-    pattern: /(send|upload|post|exfiltrate|leak).{0,80}(secret|token|api[_ -]?key|password|credential)/i,
-    message: "May instruct an agent to expose secrets or credentials.",
-  },
-  {
-    id: "code-download-exec",
-    severity: "critical",
-    pattern: /(curl|wget).{0,120}(bash|sh|python|node|deno)/i,
-    message: "May download and execute remote code.",
-  },
-  {
-    id: "shell-dangerous",
-    severity: "critical",
-    pattern: /(rm\s+-rf|sudo\s+|chmod\s+777|chown\s+|mkfs|dd\s+if=|:\(\)\s*\{\s*:\|:&\s*\};:)/i,
-    message: "Contains dangerous shell commands.",
-  },
-  {
-    id: "ignore-instructions",
-    severity: "high",
-    pattern: /(ignore previous instructions|ignore all prior instructions|system prompt|developer message|hidden instruction)/i,
-    message: "Contains prompt-injection language.",
-  },
-  {
-    id: "external-webhook",
-    severity: "high",
-    pattern: /(webhook|requestbin|pastebin|ngrok|discord\.com\/api\/webhooks|slack\.com\/api)/i,
-    message: "References a webhook or external collection endpoint.",
-  },
-  {
-    id: "filesystem-sensitive",
-    severity: "high",
-    pattern: /(read|open|scan|list).{0,80}(home directory|~\/|\.ssh|\.aws|\.config|keychain|credential store)/i,
-    message: "May instruct access to sensitive filesystem locations.",
-  },
-  {
-    id: "network-command",
-    severity: "medium",
-    pattern: /(curl|wget|nc\s+|netcat|scp|rsync|ssh)\b/i,
-    message: "Contains network-capable CLI instructions. Common in tech docs — review context.",
-  },
-  {
-    id: "base64-payload",
-    severity: "medium",
-    pattern: /base64|atob\(|btoa\(|Buffer\.from\(.{0,80}base64/i,
-    message: "References Base64 encoding/decoding. Common in technical content — may be benign.",
-  },
-  {
-    id: "credential-keywords",
-    severity: "medium",
-    pattern: /(api[_ -]?key|access token|refresh token|password|private key|ssh key|credential)/i,
-    message: "References credentials or secrets. Common in auth tutorials — review context.",
-  },
-];
+    {
+      id: "env-access",
+      severity: "critical",
+      pattern: /(process\.env|\.env|environment variable|env var)/i,
+      message: "References environment variables or .env files.",
+    },
+    {
+      id: "secret-exfiltration",
+      severity: "critical",
+      pattern: /(send|upload|post|exfiltrate|leak).{0,80}(secret|token|api[_ -]?key|password|credential)/i,
+      message: "May instruct an agent to expose secrets or credentials.",
+    },
+    {
+      id: "code-download-exec",
+      severity: "critical",
+      pattern: /(curl|wget).{0,120}(bash|sh|python|node|deno)/i,
+      message: "May download and execute remote code.",
+    },
+    {
+      id: "shell-dangerous",
+      severity: "critical",
+      pattern: /(rm\s+-rf|sudo\s+|chmod\s+777|chown\s+|mkfs|dd\s+if=|:\(\)\s*\{\s*:\|:&\s*\};:)/i,
+      message: "Contains dangerous shell commands.",
+    },
+    {
+      id: "ignore-instructions",
+      severity: "high",
+      pattern: /(ignore previous instructions|ignore all prior instructions|system prompt|developer message|hidden instruction)/i,
+      message: "Contains prompt-injection language.",
+    },
+    {
+      id: "external-webhook",
+      severity: "high",
+      pattern: /(webhook|requestbin|pastebin|ngrok|discord\.com\/api\/webhooks|slack\.com\/api)/i,
+      message: "References a webhook or external collection endpoint.",
+    },
+    {
+      id: "filesystem-sensitive",
+      severity: "high",
+      pattern: /(read|open|scan|list).{0,80}(home directory|~\/|\.ssh|\.aws|\.config|keychain|credential store)/i,
+      message: "May instruct access to sensitive filesystem locations.",
+    },
+    {
+      id: "network-command",
+      severity: "medium",
+      pattern: /(curl|wget|nc\s+|netcat|scp|rsync|ssh)\b/i,
+      message: "Contains network-capable CLI instructions. Common in tech docs — review context.",
+    },
+    {
+      id: "base64-payload",
+      severity: "medium",
+      pattern: /base64|atob\(|btoa\(|Buffer\.from\(.{0,80}base64/i,
+      message: "References Base64 encoding/decoding. Common in technical content — may be benign.",
+    },
+    {
+      id: "credential-keywords",
+      severity: "medium",
+      pattern: /(api[_ -]?key|access token|refresh token|password|private key|ssh key|credential)/i,
+      message: "References credentials or secrets. Common in auth tutorials — review context.",
+    },
+  ];
 
 function lintSkillMarkdown(markdown: string): LintWarning[] {
   return LINT_RULES.flatMap((rule) => {
@@ -525,10 +525,10 @@ export default function SkillifyTool() {
   const outNameRef = useRef<HTMLSpanElement>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Keep model in sync when provider changes
-  useEffect(() => {
-    setModel(MODELS[provider][0].id);
-  }, [provider]);
+  function handleProviderChange(p: Provider) {
+    setProvider(p);
+    setModel(MODELS[p][0].id);
+  }
 
   function flashToast(msg: string) {
     setToast(msg);
@@ -761,44 +761,32 @@ ${escHtml(msg)}
                 <span className="field-hint">choose your llm</span>
               </label>
               <div className="segmented">
-                <input
-                  type="radio"
-                  id="prov-ant"
-                  name="provider"
-                  value="anthropic"
-                  checked={provider === "anthropic"}
-                  onChange={() => setProvider("anthropic")}
-                />
-                <label htmlFor="prov-ant">
+                <button
+                  type="button"
+                  data-active={provider === "anthropic" || undefined}
+                  onClick={() => handleProviderChange("anthropic")}
+                >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 3 2 21h6l4-9 4 9h6L12 3z" />
                   </svg>
                   Anthropic
-                </label>
-                <input
-                  type="radio"
-                  id="prov-oai"
-                  name="provider"
-                  value="openai"
-                  checked={provider === "openai"}
-                  onChange={() => setProvider("openai")}
-                />
-                <label htmlFor="prov-oai">
+                </button>
+                <button
+                  type="button"
+                  data-active={provider === "openai" || undefined}
+                  onClick={() => handleProviderChange("openai")}
+                >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                     <circle cx="12" cy="12" r="9" />
                     <path d="M3 12h18M12 3a13 13 0 0 1 0 18M12 3a13 13 0 0 0 0 18" />
                   </svg>
                   OpenAI
-                </label>
-                <input
-                  type="radio"
-                  id="prov-goo"
-                  name="provider"
-                  value="google"
-                  checked={provider === "google"}
-                  onChange={() => setProvider("google")}
-                />
-                <label htmlFor="prov-goo">
+                </button>
+                <button
+                  type="button"
+                  data-active={provider === "google" || undefined}
+                  onClick={() => handleProviderChange("google")}
+                >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                     <path d="M20.3 12.2c0-.6-.1-1.3-.2-1.8H12v3.4h4.7c-.2 1-.8 1.9-1.7 2.4v2h2.7c1.6-1.5 2.6-3.7 2.6-6z" />
                     <path d="M12 21c2.4 0 4.4-.8 5.9-2.1l-2.7-2.1c-.8.5-1.9.8-3.2.8-2.5 0-4.6-1.7-5.3-3.9H3.9v2.1C5.4 19.1 8.5 21 12 21z" />
@@ -806,7 +794,7 @@ ${escHtml(msg)}
                     <path d="M12 6.3c1.4 0 2.6.5 3.6 1.4l2.7-2.7C16.4 3.5 14.4 3 12 3 8.5 3 5.4 4.9 3.9 7.8l2.8 2.2c.7-2.3 2.8-3.7 5.3-3.7z" />
                   </svg>
                   Google
-                </label>
+                </button>
               </div>
             </div>
 
@@ -912,7 +900,7 @@ ${escHtml(msg)}
                 outputHtml !== null
                   ? { __html: outputHtml }
                   : {
-                      __html: `<div class="placeholder">
+                    __html: `<div class="placeholder">
   <div class="title"># readme — what skillify will produce</div>
   <div class="step"><span class="n">01</span><div><b>YAML frontmatter</b><div class="desc">name &amp; description for the skill router</div></div></div>
   <div class="step"><span class="n">02</span><div><b>When to use</b><div class="desc">disambiguating triggers · post-vs-not table</div></div></div>
@@ -921,7 +909,7 @@ ${escHtml(msg)}
   <div class="step"><span class="n">05</span><div><b>Pitfalls</b><div class="desc">bad/good code pairs · ordering rules</div></div></div>
   <div class="step"><span class="n">06</span><div><b>Reference</b><div class="desc">compact lookup table of APIs &amp; flags</div></div></div>
 </div>`,
-                    }
+                  }
               }
             />
 
