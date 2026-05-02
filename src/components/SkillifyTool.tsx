@@ -942,6 +942,8 @@ export default function SkillifyTool() {
           model_id: selectedModel,
         });
 
+        fetch("/api/skill-count/increment", { method: "POST" }).catch(() => {});
+
         const lintWarnings = lintSkillMarkdown(md);
         setWarnings(lintWarnings);
 

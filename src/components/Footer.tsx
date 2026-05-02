@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BrandMark } from "./BrandMark";
+import { SkillCount } from "./SkillCount";
 
 export function Footer() {
   return (
@@ -12,6 +13,7 @@ export function Footer() {
         <span style={{ maxWidth: "36ch", color: "var(--ink-3)", lineHeight: 1.6 }}>
           A static page for engineers who don&apos;t want another SaaS in their stack. Fork it, host it, change it.
         </span>
+        <SkillCount />
         <span style={{ marginTop: 14, maxWidth: "36ch", color: "var(--ink-3)", lineHeight: 1.6 }}>
           made by{" "}
           <a
