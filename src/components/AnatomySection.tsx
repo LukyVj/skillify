@@ -41,6 +41,30 @@ const anatRowData = [
     defaultActive: false,
   },
   {
+    section: "sources",
+    key: "sources:",
+    title: "Canonical URLs you scraped.",
+    desc: (
+      <>
+        One YAML list entry per page, primary first — same strings as the source URLs. Lets you trace
+        the Skill back to the originals.
+      </>
+    ),
+    defaultActive: false,
+  },
+  {
+    section: "generated_by",
+    key: "generated_by:",
+    title: "Provenance for Skillify output.",
+    desc: (
+      <>
+        Always <span className="mono" style={{ color: "var(--cyan)" }}>https://getskillify.dev</span> when
+        this file was produced here.
+      </>
+    ),
+    defaultActive: false,
+  },
+  {
     section: "overview",
     key: "## Overview",
     title: "What this Skill does and when to reach for it.",
@@ -165,6 +189,18 @@ export default function AnatomySection() {
           <span className="ln" data-sec="dependencies">
             <span className="fm-key">dependencies:</span>{" "}
             <span style={{ color: "var(--ink-3)" }}># omit if not needed</span>
+          </span>
+          <span className="ln" data-sec="sources">
+            <span className="fm-key">sources:</span>
+          </span>
+          <span className="ln" data-sec="sources">
+            {"  "}- https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_scroll-driven_animations
+          </span>
+          <span className="ln" data-sec="sources">
+            {"  "}- https://caniuse.com/css-scroll-driven-animations
+          </span>
+          <span className="ln" data-sec="generated_by">
+            <span className="fm-key">generated_by:</span> https://getskillify.dev
           </span>
           <span className="ln fm-line">---</span>
           <span className="ln">&nbsp;</span>

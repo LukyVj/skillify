@@ -185,6 +185,23 @@ html[data-theme="light"] .tool-input {
   background: linear-gradient(180deg, #00000003, transparent);
 }
 
+html[data-theme="light"] .extended-block {
+  background: #f7f5f0;
+  border-color: #e6e1d6;
+}
+
+html[data-theme="light"] .source-review-panel,
+html[data-theme="light"] .source-review-primary,
+html[data-theme="light"] .source-review-item {
+  background: #faf8f4;
+  border-color: #e6e1d6;
+}
+
+html[data-theme="light"] .source-review-add-input {
+  background: #ffffff;
+  border-color: #e6e1d6;
+}
+
 /* form fields */
 html[data-theme="light"] .field input,
 html[data-theme="light"] .field select,
