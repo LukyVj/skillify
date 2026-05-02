@@ -28,10 +28,37 @@ export function ThemeToggle() {
     setMode(readDomTheme());
   }, []);
 
-  const toggle = useCallback(() => {
+  const toggle = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     setMode((prev) => {
       const next = prev === "light" ? "dark" : "light";
-      applyTheme(next);
+
+      if (
+        !document.startViewTransition ||
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ) {
+        applyTheme(next);
+        return next;
+      }
+
+      const { clientX: x, clientY: y } = e;
+      const radius = Math.hypot(
+        Math.max(x, window.innerWidth - x),
+        Math.max(y, window.innerHeight - y)
+      );
+      const clip = `circle(${radius}px at ${x}px ${y}px)`;
+
+      document.documentElement.dataset.themeTransition = "";
+      const vt = document.startViewTransition(() => applyTheme(next));
+      vt.ready.then(() => {
+        document.documentElement.animate(
+          { clipPath: ["circle(0px at " + x + "px " + y + "px)", clip] },
+          { duration: 400, easing: "ease-in", pseudoElement: "::view-transition-new(root)" }
+        );
+      });
+      vt.finished.then(() => {
+        delete document.documentElement.dataset.themeTransition;
+      });
+
       return next;
     });
   }, []);
@@ -43,7 +70,7 @@ export function ThemeToggle() {
     <button
       type="button"
       className="__theme-toggle"
-      onClick={toggle}
+      onClick={(e) => toggle(e)}
       aria-label={label}
       title={label}
       suppressHydrationWarning
