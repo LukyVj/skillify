@@ -1234,7 +1234,7 @@ ${escHtml(msg)}
                     onChange={(e) => setExtendedMode(e.target.checked)}
                   />
                   <span className="extended-toggle-text">
-                    <span className="extended-title">Extended mode&nbsp;  
+                    <span className="extended-title">Extended mode&nbsp;
                       {!extendedMode && <span className="extended-title-hint">
                         (more urls, better coverage, more tokens)</span>}
                     </span>
