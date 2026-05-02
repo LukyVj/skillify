@@ -936,6 +936,12 @@ export default function SkillifyTool() {
         setTokenMeter(`${tokens.toLocaleString()} tokens`);
         setStatus("ready", `Done. Package as ${slug}/ and upload to Claude.`, "ready");
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).gtag?.("event", "skill_generated", {
+          model_provider: provider,
+          model_id: selectedModel,
+        });
+
         const lintWarnings = lintSkillMarkdown(md);
         setWarnings(lintWarnings);
 
