@@ -1419,6 +1419,7 @@ main p {
   letter-spacing: 0.06em;
   color: var(--ink);
   font-weight: 500;
+  margin-block-start: 2px;
 }
 .extended-title-hint {
   font-size: 10px;
