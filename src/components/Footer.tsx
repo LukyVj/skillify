@@ -37,6 +37,7 @@ export function Footer() {
         <h5>Learn</h5>
         <Link href="/what-is-skill-md">What is Skill.md?</Link>
         <Link href="/how-to-create-claude-skills">How to create skills</Link>
+        <Link href="/vs-manual">Skillify vs manual</Link>
         <Link href="/alternatives">Alternatives</Link>
       </div>
       <div className="col">
