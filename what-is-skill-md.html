@@ -1,0 +1,914 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-S7TKFNKQH1"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-S7TKFNKQH1");
+    </script>
+    <title>What is Skill.md? Claude Agent Skills Explained — Skillify</title>
+    <meta
+      name="description"
+      content="Skill.md is the file format Claude Code uses to give agents reusable, domain-specific expertise. Learn what it contains, how it works, and how to create one."
+    />
+    <link
+      rel="canonical"
+      href="https://getskillify.dev/what-is-skill-md.html"
+    />
+    <meta property="og:type" content="article" />
+    <meta
+      property="og:url"
+      content="https://getskillify.dev/what-is-skill-md.html"
+    />
+    <meta
+      property="og:title"
+      content="What is Skill.md? Claude Agent Skills Explained"
+    />
+    <meta
+      property="og:description"
+      content="Skill.md is the file format Claude Code uses to give agents reusable, domain-specific expertise. Learn what it contains, how it works, and how to create one."
+    />
+    <meta
+      property="og:image"
+      content="https://getskillify.dev/og-skillify.jpeg"
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "What is Skill.md? Claude Agent Skills Explained",
+        "description": "Skill.md is the file format Claude Code uses to give agents reusable, domain-specific expertise.",
+        "url": "https://getskillify.dev/what-is-skill-md.html",
+        "author": { "@type": "Organization", "name": "Skillify" },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Skillify",
+          "url": "https://getskillify.dev"
+        }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is a Skill.md file?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "A Skill.md file is a structured Markdown document that packages domain knowledge into a format Claude Code agents can use. It contains frontmatter (name, description), an overview, key patterns with examples, and pitfalls to avoid."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Where do Skill.md files live?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Skills are stored in ~/.claude/skills/ for user-level skills, or .claude/skills/ inside a project directory for project-scoped skills."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How is Skill.md different from a system prompt?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "A system prompt is always loaded. A Skill.md is loaded on demand — the agent selects the relevant skill when the task matches the skill's description, keeping context lean."
+            }
+          }
+        ]
+      }
+    </script>
+    <link rel="icon" href="/favicon/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0c10;
+        --bg-elev: #0f1218;
+        --bg-card: #131720;
+        --bg-card-2: #181d27;
+        --ink: #ecead6;
+        --ink-2: #b6b3a1;
+        --ink-3: #6e6c5f;
+        --ink-4: #4a4940;
+        --line: #ffffff0e;
+        --line-2: #ffffff1a;
+        --line-3: #ffffff2e;
+        --accent: oklch(74% 0.16 55);
+        --accent-2: oklch(82% 0.14 60);
+        --accent-soft: oklch(30% 0.08 55);
+        --cyan: oklch(80% 0.1 215);
+        --violet: oklch(72% 0.14 290);
+        --green: oklch(74% 0.16 150);
+        --radius: 12px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: "Inter", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        font-size: 15px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "ss01", "cv11";
+        overflow-x: hidden;
+      }
+      ::selection {
+        background: var(--accent);
+        color: #0a0c10;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .mono {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+      }
+      .serif {
+        font-family: "Instrument Serif", serif;
+        font-style: italic;
+        font-weight: 400;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 1;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0   0 0 0 0 0   0 0 0 0 0   0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+        opacity: 0.55;
+        mix-blend-mode: overlay;
+      }
+
+      /* nav */
+      .nav {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        backdrop-filter: blur(16px) saturate(140%);
+        background: color-mix(in oklab, var(--bg) 70%, transparent);
+        border-bottom: 1px solid var(--line);
+      }
+      .nav-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 12px 28px;
+        display: flex;
+        align-items: center;
+        gap: 28px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        font-size: 15px;
+      }
+      .brand-mark {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+        filter: drop-shadow(0 0 4px rgba(246, 140, 54, 0.4));
+      }
+      .brand-tag {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        color: var(--ink-3);
+        border: 1px solid var(--line-2);
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 4px;
+      }
+      .nav-links {
+        display: flex;
+        gap: 24px;
+        margin-left: auto;
+        align-items: center;
+        font-size: 13.5px;
+        color: var(--ink-2);
+      }
+      .nav-links a:hover {
+        color: var(--ink);
+      }
+      .nav-cta {
+        padding: 7px 13px;
+        border: 1px solid var(--line-2);
+        border-radius: 999px;
+        background: linear-gradient(180deg, #ffffff08, #ffffff02);
+        font-size: 13px;
+        color: var(--ink);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition:
+          border-color 0.15s,
+          background 0.15s;
+      }
+      .nav-cta:hover {
+        border-color: var(--line-3);
+        background: linear-gradient(180deg, #ffffff14, #ffffff06);
+      }
+      .nav-cta .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 0 3px color-mix(in oklab, var(--green) 25%, transparent);
+      }
+
+      /* layout */
+      .page-wrap {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 0 28px;
+        position: relative;
+        z-index: 2;
+      }
+      .spotlight {
+        position: absolute;
+        inset: -10% -10% auto -10%;
+        height: 500px;
+        pointer-events: none;
+        z-index: 0;
+        background: radial-gradient(
+          60% 50% at 50% 0%,
+          color-mix(in oklab, var(--accent) 15%, transparent) 0%,
+          transparent 60%
+        );
+        filter: blur(8px);
+      }
+
+      /* article hero */
+      .article-hero {
+        padding: 72px 0 56px;
+        position: relative;
+      }
+      .eyebrow {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--ink-3);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 24px;
+      }
+      .eyebrow::before {
+        content: "";
+        width: 18px;
+        height: 1px;
+        background: var(--accent);
+        box-shadow: 0 0 8px color-mix(in oklab, var(--accent) 60%, transparent);
+      }
+      h1 {
+        font-size: clamp(34px, 5vw, 56px);
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+        font-weight: 600;
+        background: linear-gradient(180deg, #fff 0%, #d6d2bf 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin: 0 0 20px;
+      }
+      h1 em {
+        font-family: "Instrument Serif", serif;
+        font-style: italic;
+        font-weight: 400;
+        background: linear-gradient(
+          180deg,
+          var(--accent-2) 0%,
+          var(--accent) 100%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .article-meta {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--ink-3);
+        margin-top: 4px;
+      }
+
+      /* article body */
+      .article-body {
+        padding-bottom: 96px;
+      }
+      .article-body h2 {
+        font-size: clamp(22px, 3vw, 28px);
+        letter-spacing: -0.022em;
+        font-weight: 600;
+        color: var(--ink);
+        margin: 64px 0 16px;
+      }
+      .article-body h3 {
+        font-size: 17px;
+        font-weight: 600;
+        letter-spacing: -0.015em;
+        color: var(--ink);
+        margin: 32px 0 10px;
+      }
+      .article-body p {
+        color: var(--ink-2);
+        margin: 0 0 16px;
+        line-height: 1.7;
+      }
+      .article-body ul,
+      .article-body ol {
+        color: var(--ink-2);
+        padding-left: 20px;
+        margin: 0 0 16px;
+        line-height: 1.7;
+      }
+      .article-body li {
+        margin-bottom: 6px;
+      }
+      .article-body a {
+        color: var(--accent-2);
+        border-bottom: 1px dashed
+          color-mix(in oklab, var(--accent) 40%, transparent);
+      }
+      .article-body a:hover {
+        border-color: var(--accent);
+      }
+
+      /* code block */
+      .code-block {
+        background: var(--bg-card);
+        border: 1px solid var(--line-2);
+        border-radius: var(--radius);
+        padding: 20px 24px;
+        margin: 24px 0;
+        overflow-x: auto;
+      }
+      .code-block pre {
+        margin: 0;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12.5px;
+        color: var(--ink);
+        line-height: 1.65;
+      }
+      .code-block .comment {
+        color: var(--ink-3);
+      }
+      .code-block .key {
+        color: var(--accent-2);
+      }
+      .code-block .val {
+        color: var(--cyan);
+      }
+
+      /* callout */
+      .callout {
+        background: color-mix(in oklab, var(--accent-soft) 60%, transparent);
+        border: 1px solid color-mix(in oklab, var(--accent) 25%, transparent);
+        border-radius: var(--radius);
+        padding: 20px 24px;
+        margin: 28px 0;
+      }
+      .callout p {
+        color: var(--ink-2);
+        margin: 0;
+      }
+      .callout strong {
+        color: var(--accent-2);
+      }
+
+      /* anatomy table */
+      .anatomy-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 24px 0;
+        font-size: 13.5px;
+      }
+      .anatomy-table th {
+        text-align: left;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--ink-3);
+        padding: 0 16px 12px 0;
+        border-bottom: 1px solid var(--line-2);
+      }
+      .anatomy-table td {
+        padding: 12px 16px 12px 0;
+        border-bottom: 1px solid var(--line);
+        color: var(--ink-2);
+        vertical-align: top;
+      }
+      .anatomy-table td:first-child {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        color: var(--accent-2);
+        white-space: nowrap;
+      }
+
+      /* cta block */
+      .cta-block {
+        background: var(--bg-card);
+        border: 1px solid var(--line-2);
+        border-radius: var(--radius);
+        padding: 40px 40px;
+        margin: 64px 0 0;
+        text-align: center;
+      }
+      .cta-block h2 {
+        font-size: 26px;
+        letter-spacing: -0.02em;
+        font-weight: 600;
+        color: var(--ink);
+        margin: 0 0 10px;
+      }
+      .cta-block p {
+        color: var(--ink-3);
+        margin: 0 0 28px;
+        font-size: 14px;
+      }
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: var(--accent);
+        color: #0a0c10;
+        font-weight: 600;
+        font-size: 14px;
+        border-radius: 999px;
+        transition: opacity 0.15s;
+      }
+      .btn-primary:hover {
+        opacity: 0.85;
+      }
+
+      /* footer */
+      footer {
+        padding: 48px 28px 64px;
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1.4fr repeat(3, 1fr);
+        gap: 36px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        color: var(--ink-3);
+        border-top: 1px solid var(--line);
+      }
+      @media (max-width: 760px) {
+        footer {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      footer h5 {
+        color: var(--ink);
+        margin: 0 0 12px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      footer a:hover {
+        color: var(--ink);
+      }
+      footer .col {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      footer .analytics-notice {
+        grid-column: 1 / -1;
+        padding-top: 24px;
+        border-top: 1px solid var(--line);
+        color: var(--ink-4);
+        font-size: 10.5px;
+        line-height: 1.6;
+      }
+      @media (max-width: 640px) {
+        .nav-links {
+          display: none;
+        }
+        .page-wrap {
+          padding: 0 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="nav-inner">
+        <a class="brand" href="/">
+          <svg
+            class="brand-mark"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 512 512"
+            aria-hidden="true"
+          >
+            <rect width="512" height="512" rx="112" fill="#080A0F" />
+            <rect
+              x="12"
+              y="12"
+              width="488"
+              height="488"
+              rx="100"
+              fill="none"
+              stroke="#f68c36"
+              stroke-width="12"
+            />
+            <text
+              x="256"
+              y="334"
+              text-anchor="middle"
+              font-family="Inter, ui-sans-serif, system-ui, sans-serif"
+              font-size="342"
+              font-weight="850"
+              letter-spacing="-18"
+              fill="#F8FAFC"
+            >
+              S
+            </text>
+            <rect
+              x="354"
+              y="390"
+              width="68"
+              height="28"
+              rx="7"
+              fill="#f68c36"
+            />
+          </svg>
+          <span>Skillify</span>
+          <span class="brand-tag">v0.1 · alpha</span>
+        </a>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/alternatives.html">Alternatives</a>
+          <a href="/how-to-create-claude-skills.html">How-to</a>
+          <a class="nav-cta" href="/#tool"
+            ><span class="dot"></span>Open the converter</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <div style="position: relative; overflow: hidden">
+      <div class="spotlight"></div>
+      <div class="page-wrap">
+        <article>
+          <header class="article-hero">
+            <div class="eyebrow">Explainer · TOFU</div>
+            <h1>What is <em>Skill.md?</em></h1>
+            <p
+              style="
+                color: var(--ink-2);
+                font-size: 17px;
+                line-height: 1.6;
+                max-width: 58ch;
+                margin: 0 0 24px;
+              "
+            >
+              The file format that gives Claude agents reusable, domain-specific
+              expertise — without bloating your system prompt.
+            </p>
+            <div class="article-meta">
+              <span>5 min read</span>
+              <span>·</span>
+              <span>Updated May 2026</span>
+            </div>
+          </header>
+
+          <div class="article-body">
+            <h2>The short answer</h2>
+            <p>
+              A
+              <span class="mono" style="color: var(--accent); font-size: 13px"
+                >Skill.md</span
+              >
+              is a structured Markdown file that packages domain knowledge into
+              a format Claude Code agents can load on demand. Think of it as a
+              specialist briefing doc: instead of prompting Claude with three
+              paragraphs of context every time you need it to write a database
+              migration, you write that context once, save it as a skill, and
+              the agent picks it up automatically when the task matches.
+            </p>
+            <p>
+              Skills live in
+              <span class="mono" style="font-size: 13px; color: var(--ink)"
+                >~/.claude/skills/</span
+              >
+              (user-level) or
+              <span class="mono" style="font-size: 13px; color: var(--ink)"
+                >.claude/skills/</span
+              >
+              (project-level). Claude Code reads the skill's
+              <code
+                style="
+                  font-family:
+                    JetBrains Mono,
+                    monospace;
+                  font-size: 12px;
+                  color: var(--ink-2);
+                "
+                >description</code
+              >
+              field to decide whether to load it for any given task.
+            </p>
+
+            <h2>What's inside a Skill.md file</h2>
+            <p>Every skill has the same four-part structure:</p>
+
+            <div class="code-block">
+              <pre><span class="comment">---</span>
+<span class="key">name:</span> <span class="val">Database Migration Expert</span>
+<span class="key">description:</span> <span class="val">Use when writing, reviewing, or debugging</span>
+           <span class="val">SQL migrations for PostgreSQL or MySQL.</span>
+<span class="comment">---</span>
+
+<span class="comment"># Overview</span>
+Why this skill exists and when to apply it.
+
+<span class="comment">## Key patterns</span>
+Concrete examples of what to do and how.
+
+<span class="comment">## Pitfalls</span>
+Common mistakes and how to avoid them.
+
+<span class="comment">## Reference</span>
+Tables, schemas, command references.</pre>
+            </div>
+
+            <table class="anatomy-table">
+              <thead>
+                <tr>
+                  <th>Section</th>
+                  <th>What goes here</th>
+                  <th>Required?</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>name</td>
+                  <td>A short human-readable title for the skill</td>
+                  <td style="color: var(--green)">Yes</td>
+                </tr>
+                <tr>
+                  <td>description</td>
+                  <td>
+                    One or two sentences describing when the agent should load
+                    this skill. This is what Claude reads to decide relevance.
+                  </td>
+                  <td style="color: var(--green)">Yes</td>
+                </tr>
+                <tr>
+                  <td>Overview</td>
+                  <td>
+                    What the domain is, why this expertise matters, scope of the
+                    skill
+                  </td>
+                  <td style="color: var(--ink-3)">Recommended</td>
+                </tr>
+                <tr>
+                  <td>Key patterns</td>
+                  <td>
+                    Concrete examples, code snippets, decision rules — the "how
+                    to do it right" section
+                  </td>
+                  <td style="color: var(--ink-3)">Recommended</td>
+                </tr>
+                <tr>
+                  <td>Pitfalls</td>
+                  <td>
+                    Anti-patterns, common mistakes, bad vs. good comparisons
+                  </td>
+                  <td style="color: var(--ink-3)">Recommended</td>
+                </tr>
+                <tr>
+                  <td>Reference</td>
+                  <td>Lookup tables, schemas, API signatures, benchmarks</td>
+                  <td style="color: var(--ink-4)">Optional</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h2>How it's different from a system prompt</h2>
+            <p>
+              System prompts are always loaded — they consume context tokens
+              whether the task needs them or not. Skills are loaded on demand.
+              When you start a task, Claude Code checks every skill's
+              <span class="mono" style="font-size: 13px; color: var(--ink)"
+                >description</span
+              >
+              and loads only the ones relevant to what you're doing.
+            </p>
+            <p>This matters for two reasons:</p>
+            <ul>
+              <li>
+                <strong style="color: var(--ink)">Context efficiency.</strong> A
+                codebase with 20 skills doesn't mean 20× more tokens per
+                request. Most tasks load 1–3 skills.
+              </li>
+              <li>
+                <strong style="color: var(--ink)">Composability.</strong> Skills
+                stack. A task touching both a database and an API can load both
+                the "database migrations" skill and the "REST API design" skill
+                simultaneously.
+              </li>
+            </ul>
+
+            <h2>How is Skill.md different from CLAUDE.md?</h2>
+            <p>
+              <span class="mono" style="font-size: 13px; color: var(--ink)"
+                >CLAUDE.md</span
+              >
+              is always-on project or user configuration — it sets conventions,
+              gives Claude persistent context about a repo, and overrides
+              default behavior. It is not selective.
+            </p>
+            <p>
+              <span class="mono" style="font-size: 13px; color: var(--accent)"
+                >Skill.md</span
+              >
+              is domain expertise loaded on demand. Use CLAUDE.md for "always
+              remember this about our project." Use Skill.md for "when doing X,
+              apply this specialised knowledge."
+            </p>
+
+            <div class="callout">
+              <p>
+                <strong>Rule of thumb:</strong> If the knowledge applies to
+                every single task, put it in CLAUDE.md. If it applies only when
+                working in a specific domain (migrations, SEO, security reviews,
+                etc.), make it a skill.
+              </p>
+            </div>
+
+            <h2>A real example</h2>
+            <p>
+              Here's a minimal but functional Skill.md for a SaaS SEO
+              specialist:
+            </p>
+
+            <div class="code-block">
+              <pre><span class="comment">---</span>
+<span class="key">name:</span> <span class="val">SaaS SEO Playbook</span>
+<span class="key">description:</span> <span class="val">Use when planning SEO strategy, writing meta</span>
+           <span class="val">tags, building content clusters, or auditing</span>
+           <span class="val">technical SEO for a SaaS product.</span>
+<span class="comment">---</span>
+
+<span class="comment"># Overview</span>
+Keyword strategy for SaaS prioritises BOFU terms
+(alternatives, comparisons, pricing) before TOFU
+volume plays. Recurring-revenue context changes
+everything about how you score opportunities.
+
+<span class="comment">## Key patterns</span>
+### Keyword scoring matrix
+| Factor            | Weight |
+|-------------------|-------:|
+| Conversion intent |    30% |
+| Keyword difficulty|    25% |
+| Search volume     |    20% |
+| Content gap       |    15% |
+| Business relevance|    10% |
+
+<span class="comment">## Pitfalls</span>
+- Prioritising search volume over conversion intent
+- Publishing isolated posts instead of content clusters</pre>
+            </div>
+
+            <p>
+              When you ask Claude to "plan our content strategy for Q3," it
+              loads this skill automatically and applies the BOFU-first
+              framework — no prompting required.
+            </p>
+
+            <h2>How to create a Skill.md</h2>
+            <p>You have two options:</p>
+            <ol>
+              <li>
+                <strong style="color: var(--ink)">Write it by hand.</strong> Use
+                the structure above. Works well if you already have the
+                expertise and just need to encode it.
+              </li>
+              <li>
+                <strong style="color: var(--ink)"
+                  >Generate it from a source article.</strong
+                >
+                Paste any URL into Skillify and it extracts patterns, pitfalls,
+                and reference material automatically — takes about 30 seconds.
+              </li>
+            </ol>
+
+            <div class="cta-block">
+              <h2>Try the generator</h2>
+              <p>
+                Paste a URL. Get a production-ready Skill.md in under a minute.
+              </p>
+              <a class="btn-primary" href="/#tool">Open the converter →</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <footer>
+      <div class="col">
+        <div class="brand" style="margin-bottom: 12px">
+          <svg
+            class="brand-mark"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 512 512"
+            aria-hidden="true"
+          >
+            <rect width="512" height="512" rx="112" fill="#080A0F" />
+            <rect
+              x="12"
+              y="12"
+              width="488"
+              height="488"
+              rx="100"
+              fill="none"
+              stroke="#f68c36"
+              stroke-width="12"
+            />
+            <text
+              x="256"
+              y="334"
+              text-anchor="middle"
+              font-family="Inter, ui-sans-serif, system-ui, sans-serif"
+              font-size="342"
+              font-weight="850"
+              letter-spacing="-18"
+              fill="#F8FAFC"
+            >
+              S
+            </text>
+            <rect
+              x="354"
+              y="390"
+              width="68"
+              height="28"
+              rx="7"
+              fill="#f68c36"
+            />
+          </svg>
+          <span style="color: var(--ink)">Skillify</span>
+        </div>
+        <span style="max-width: 36ch; color: var(--ink-3); line-height: 1.6"
+          >A static page for engineers who don't want another SaaS in their
+          stack.</span
+        >
+      </div>
+      <div class="col">
+        <h5>Product</h5>
+        <a href="/#tool">Converter</a>
+        <a href="/#how">Pipeline</a>
+        <a href="/#anatomy">Anatomy</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div class="col">
+        <h5>Learn</h5>
+        <a href="/what-is-skill-md.html">What is Skill.md?</a>
+        <a href="/how-to-create-claude-skills.html">How to create skills</a>
+        <a href="/alternatives.html">Alternatives</a>
+      </div>
+      <div class="col">
+        <h5>Legal-ish</h5>
+        <a href="#">MIT · no warranties</a>
+        <span style="color: var(--ink-4)">v0.1 · 2026</span>
+      </div>
+      <p class="analytics-notice">
+        This site uses Google Analytics (GA4) solely to count page visits — no
+        personal data is collected, stored, or shared with third parties.
+      </p>
+    </footer>
+  </body>
+</html>

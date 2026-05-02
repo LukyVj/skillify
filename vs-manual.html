@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-S7TKFNKQH1"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-S7TKFNKQH1");
+    </script>
+    <title>Skillify vs Writing Claude Skills Manually — Skillify</title>
+    <meta
+      name="description"
+      content="Should you write Claude Agent Skill.md files by hand or generate them with Skillify? An honest comparison of quality, speed, and output."
+    />
+    <link rel="canonical" href="https://getskillify.dev/vs-manual.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://getskillify.dev/vs-manual.html" />
+    <meta
+      property="og:title"
+      content="Skillify vs Writing Claude Skills Manually"
+    />
+    <meta
+      property="og:description"
+      content="Should you write Claude Agent Skill.md files by hand or generate them with Skillify? An honest comparison."
+    />
+    <meta
+      property="og:image"
+      content="https://getskillify.dev/og-skillify.jpeg"
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Skillify vs Writing Claude Skills Manually",
+        "description": "An honest comparison of generating Skill.md files with Skillify versus writing them by hand.",
+        "url": "https://getskillify.dev/vs-manual.html",
+        "author": { "@type": "Organization", "name": "Skillify" },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Skillify",
+          "url": "https://getskillify.dev"
+        }
+      }
+    </script>
+    <link rel="icon" href="/favicon/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0c10;
+        --bg-elev: #0f1218;
+        --bg-card: #131720;
+        --bg-card-2: #181d27;
+        --ink: #ecead6;
+        --ink-2: #b6b3a1;
+        --ink-3: #6e6c5f;
+        --ink-4: #4a4940;
+        --line: #ffffff0e;
+        --line-2: #ffffff1a;
+        --line-3: #ffffff2e;
+        --accent: oklch(74% 0.16 55);
+        --accent-2: oklch(82% 0.14 60);
+        --accent-soft: oklch(30% 0.08 55);
+        --cyan: oklch(80% 0.1 215);
+        --violet: oklch(72% 0.14 290);
+        --green: oklch(74% 0.16 150);
+        --red: oklch(72% 0.18 25);
+        --radius: 12px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: "Inter", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        font-size: 15px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "ss01", "cv11";
+        overflow-x: hidden;
+      }
+      ::selection {
+        background: var(--accent);
+        color: #0a0c10;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .mono {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 1;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0   0 0 0 0 0   0 0 0 0 0   0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+        opacity: 0.55;
+        mix-blend-mode: overlay;
+      }
+      .nav {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        backdrop-filter: blur(16px) saturate(140%);
+        background: color-mix(in oklab, var(--bg) 70%, transparent);
+        border-bottom: 1px solid var(--line);
+      }
+      .nav-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 12px 28px;
+        display: flex;
+        align-items: center;
+        gap: 28px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        font-size: 15px;
+      }
+      .brand-mark {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+        filter: drop-shadow(0 0 4px rgba(246, 140, 54, 0.4));
+      }
+      .brand-tag {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        color: var(--ink-3);
+        border: 1px solid var(--line-2);
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 4px;
+      }
+      .nav-links {
+        display: flex;
+        gap: 24px;
+        margin-left: auto;
+        align-items: center;
+        font-size: 13.5px;
+        color: var(--ink-2);
+      }
+      .nav-links a:hover {
+        color: var(--ink);
+      }
+      .nav-cta {
+        padding: 7px 13px;
+        border: 1px solid var(--line-2);
+        border-radius: 999px;
+        background: linear-gradient(180deg, #ffffff08, #ffffff02);
+        font-size: 13px;
+        color: var(--ink);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition:
+          border-color 0.15s,
+          background 0.15s;
+      }
+      .nav-cta:hover {
+        border-color: var(--line-3);
+        background: linear-gradient(180deg, #ffffff14, #ffffff06);
+      }
+      .nav-cta .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 0 3px color-mix(in oklab, var(--green) 25%, transparent);
+      }
+      .page-wrap {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 0 28px;
+        position: relative;
+        z-index: 2;
+      }
+      .spotlight {
+        position: absolute;
+        inset: -10% -10% auto -10%;
+        height: 500px;
+        pointer-events: none;
+        z-index: 0;
+        background: radial-gradient(
+          60% 50% at 50% 0%,
+          color-mix(in oklab, var(--accent) 15%, transparent) 0%,
+          transparent 60%
+        );
+        filter: blur(8px);
+      }
+      .article-hero {
+        padding: 72px 0 56px;
+        position: relative;
+      }
+      .eyebrow {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--ink-3);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 24px;
+      }
+      .eyebrow::before {
+        content: "";
+        width: 18px;
+        height: 1px;
+        background: var(--accent);
+        box-shadow: 0 0 8px color-mix(in oklab, var(--accent) 60%, transparent);
+      }
+      h1 {
+        font-size: clamp(34px, 5vw, 52px);
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+        font-weight: 600;
+        background: linear-gradient(180deg, #fff 0%, #d6d2bf 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin: 0 0 20px;
+      }
+      h1 em {
+        font-family: "Instrument Serif", serif;
+        font-style: italic;
+        font-weight: 400;
+        background: linear-gradient(
+          180deg,
+          var(--accent-2) 0%,
+          var(--accent) 100%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .article-meta {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--ink-3);
+        margin-top: 4px;
+      }
+      .article-body {
+        padding-bottom: 96px;
+      }
+      .article-body h2 {
+        font-size: clamp(22px, 3vw, 28px);
+        letter-spacing: -0.022em;
+        font-weight: 600;
+        color: var(--ink);
+        margin: 64px 0 16px;
+      }
+      .article-body h3 {
+        font-size: 17px;
+        font-weight: 600;
+        letter-spacing: -0.015em;
+        color: var(--ink);
+        margin: 36px 0 10px;
+      }
+      .article-body p {
+        color: var(--ink-2);
+        margin: 0 0 16px;
+        line-height: 1.7;
+      }
+      .article-body ul {
+        color: var(--ink-2);
+        padding-left: 20px;
+        margin: 0 0 16px;
+        line-height: 1.7;
+      }
+      .article-body li {
+        margin-bottom: 6px;
+      }
+      .article-body a {
+        color: var(--accent-2);
+        border-bottom: 1px dashed
+          color-mix(in oklab, var(--accent) 40%, transparent);
+      }
+
+      /* vs columns */
+      .vs-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
+        background: var(--line-2);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin: 32px 0;
+      }
+      .vs-col {
+        background: var(--bg-card);
+        padding: 28px;
+      }
+      .vs-col.skillify {
+        background: color-mix(in oklab, var(--accent-soft) 30%, var(--bg-card));
+      }
+      .vs-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 16px;
+        display: block;
+      }
+      .vs-label.l-skillify {
+        color: var(--accent-2);
+      }
+      .vs-label.l-manual {
+        color: var(--ink-3);
+      }
+      .vs-col h3 {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--ink);
+        margin: 0 0 12px;
+      }
+      .vs-col p {
+        font-size: 13.5px;
+        color: var(--ink-2);
+        margin: 0 0 12px;
+        line-height: 1.65;
+      }
+      .vs-col ul {
+        font-size: 13.5px;
+        color: var(--ink-2);
+        padding-left: 18px;
+        margin: 0;
+        line-height: 1.65;
+      }
+      .vs-col li {
+        margin-bottom: 5px;
+      }
+      @media (max-width: 580px) {
+        .vs-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* timeline */
+      .timeline {
+        margin: 32px 0;
+      }
+      .timeline-row {
+        display: grid;
+        grid-template-columns: 120px 1fr 1fr;
+        gap: 16px;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--line);
+        align-items: start;
+        font-size: 13.5px;
+      }
+      .timeline-row:first-child {
+        border-top: 1px solid var(--line-2);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--ink-3);
+        padding-bottom: 10px;
+      }
+      .timeline-row .step-label {
+        color: var(--ink-3);
+      }
+      .timeline-row .skillify-cell {
+        color: var(--green);
+      }
+      .timeline-row .manual-cell {
+        color: var(--ink-2);
+      }
+
+      .verdict {
+        background: var(--bg-card);
+        border: 1px solid var(--line-2);
+        border-radius: var(--radius);
+        padding: 28px 32px;
+        margin: 48px 0;
+      }
+      .verdict h3 {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--ink);
+        margin: 0 0 10px;
+      }
+      .verdict p {
+        color: var(--ink-2);
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
+      .cta-block {
+        background: var(--bg-card);
+        border: 1px solid var(--line-2);
+        border-radius: var(--radius);
+        padding: 40px;
+        margin: 64px 0 0;
+        text-align: center;
+      }
+      .cta-block h2 {
+        font-size: 26px;
+        letter-spacing: -0.02em;
+        font-weight: 600;
+        color: var(--ink);
+        margin: 0 0 10px;
+      }
+      .cta-block p {
+        color: var(--ink-3);
+        margin: 0 0 28px;
+        font-size: 14px;
+      }
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: var(--accent);
+        color: #0a0c10;
+        font-weight: 600;
+        font-size: 14px;
+        border-radius: 999px;
+        transition: opacity 0.15s;
+      }
+      .btn-primary:hover {
+        opacity: 0.85;
+      }
+
+      footer {
+        padding: 48px 28px 64px;
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1.4fr repeat(3, 1fr);
+        gap: 36px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        color: var(--ink-3);
+        border-top: 1px solid var(--line);
+      }
+      @media (max-width: 760px) {
+        footer {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      footer h5 {
+        color: var(--ink);
+        margin: 0 0 12px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      footer a:hover {
+        color: var(--ink);
+      }
+      footer .col {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      footer .analytics-notice {
+        grid-column: 1 / -1;
+        padding-top: 24px;
+        border-top: 1px solid var(--line);
+        color: var(--ink-4);
+        font-size: 10.5px;
+        line-height: 1.6;
+      }
+      @media (max-width: 640px) {
+        .nav-links {
+          display: none;
+        }
+        .page-wrap {
+          padding: 0 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="nav-inner">
+        <a class="brand" href="/">
+          <svg
+            class="brand-mark"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 512 512"
+            aria-hidden="true"
+          >
+            <rect width="512" height="512" rx="112" fill="#080A0F" />
+            <rect
+              x="12"
+              y="12"
+              width="488"
+              height="488"
+              rx="100"
+              fill="none"
+              stroke="#f68c36"
+              stroke-width="12"
+            />
+            <text
+              x="256"
+              y="334"
+              text-anchor="middle"
+              font-family="Inter, ui-sans-serif, system-ui, sans-serif"
+              font-size="342"
+              font-weight="850"
+              letter-spacing="-18"
+              fill="#F8FAFC"
+            >
+              S
+            </text>
+            <rect
+              x="354"
+              y="390"
+              width="68"
+              height="28"
+              rx="7"
+              fill="#f68c36"
+            />
+          </svg>
+          <span>Skillify</span>
+          <span class="brand-tag">v0.1 · alpha</span>
+        </a>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/alternatives.html">All alternatives</a>
+          <a href="/how-to-create-claude-skills.html">How-to guide</a>
+          <a class="nav-cta" href="/#tool"
+            ><span class="dot"></span>Open the converter</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <div style="position: relative; overflow: hidden">
+      <div class="spotlight"></div>
+      <div class="page-wrap">
+        <article>
+          <header class="article-hero">
+            <div class="eyebrow">Comparison · BOFU</div>
+            <h1>Skillify <em>vs manual</em></h1>
+            <p
+              style="
+                color: var(--ink-2);
+                font-size: 17px;
+                line-height: 1.6;
+                max-width: 58ch;
+                margin: 0 0 24px;
+              "
+            >
+              When should you generate a Skill.md with Skillify, and when should
+              you write it yourself? The honest answer is: it depends on where
+              the knowledge lives.
+            </p>
+            <div class="article-meta">
+              <span>5 min read</span>
+              <span>·</span>
+              <span>Updated May 2026</span>
+            </div>
+          </header>
+
+          <div class="article-body">
+            <h2>The core difference</h2>
+            <p>
+              Skillify and writing by hand solve the same problem — producing a
+              usable Skill.md — but they start from different places.
+            </p>
+
+            <div class="vs-grid">
+              <div class="vs-col skillify">
+                <span class="vs-label l-skillify">Skillify</span>
+                <h3>Starts from a source document</h3>
+                <p>
+                  You have a URL: a playbook, a style guide, an API reference, a
+                  technical article. Skillify fetches it, extracts the
+                  structure, and outputs a formatted Skill.md.
+                </p>
+                <p>
+                  The knowledge comes from the source. Your job is to review and
+                  refine.
+                </p>
+                <ul>
+                  <li>
+                    Best when the expertise is already written down somewhere
+                  </li>
+                  <li>30 seconds from URL to usable file</li>
+                  <li>Output always has the correct four-part structure</li>
+                </ul>
+              </div>
+              <div class="vs-col">
+                <span class="vs-label l-manual">Manual</span>
+                <h3>Starts from your head</h3>
+                <p>
+                  The knowledge is yours — years of experience, internal
+                  conventions, undocumented decisions. No source doc exists, so
+                  you write the skill directly.
+                </p>
+                <p>
+                  The knowledge comes from you. The structure takes effort to
+                  get right.
+                </p>
+                <ul>
+                  <li>
+                    Best when there's no existing documentation to draw from
+                  </li>
+                  <li>30–90 minutes per well-structured skill</li>
+                  <li>
+                    Pitfalls and reference sections often get skipped under time
+                    pressure
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <h2>Time comparison: building 10 skills</h2>
+            <p>
+              Assume a team wants to build a library of 10 skills covering their
+              most common engineering domains.
+            </p>
+
+            <div class="timeline">
+              <div class="timeline-row">
+                <span></span>
+                <span>Skillify</span>
+                <span>By hand</span>
+              </div>
+              <div class="timeline-row">
+                <span class="step-label">Setup</span>
+                <span class="skillify-cell">0 min (browser, no install)</span>
+                <span class="manual-cell">0 min</span>
+              </div>
+              <div class="timeline-row">
+                <span class="step-label">Per skill</span>
+                <span class="skillify-cell">~5 min (generate + review)</span>
+                <span class="manual-cell">45 min average</span>
+              </div>
+              <div class="timeline-row">
+                <span class="step-label">10 skills total</span>
+                <span class="skillify-cell" style="font-weight: 600"
+                  >~50 min</span
+                >
+                <span class="manual-cell" style="color: var(--ink-3)"
+                  >~7.5 hours</span
+                >
+              </div>
+              <div class="timeline-row">
+                <span class="step-label">Structure quality</span>
+                <span class="skillify-cell">Consistent</span>
+                <span class="manual-cell">Varies per author</span>
+              </div>
+              <div class="timeline-row">
+                <span class="step-label">Works without a URL</span>
+                <span style="color: var(--red)">No</span>
+                <span class="skillify-cell">Yes</span>
+              </div>
+            </div>
+
+            <h2>Quality: where each wins</h2>
+
+            <h3>Skillify wins on structure</h3>
+            <p>
+              The most common problem with hand-written skills is an incomplete
+              structure. Under time pressure, people write the overview and key
+              patterns, then skip the pitfalls section — which is often the most
+              valuable part. Skillify always generates all four sections because
+              the structure is baked into the prompt.
+            </p>
+
+            <h3>Manual wins on depth for proprietary knowledge</h3>
+            <p>
+              If the skill needs to encode conventions that don't exist in any
+              document — your team's specific migration strategy, your internal
+              API design rules, the three exceptions your codebase makes to an
+              otherwise standard pattern — a generated skill can't capture that.
+              You have to write it.
+            </p>
+            <p>
+              The practical answer for most teams: use Skillify to generate a
+              first draft from the best available source, then manually add the
+              proprietary knowledge on top.
+            </p>
+
+            <h2>The hybrid workflow</h2>
+            <p>The most efficient approach for most use cases:</p>
+            <ul>
+              <li>
+                Find the best existing article or doc that covers the domain
+              </li>
+              <li>Run it through Skillify to get a structured draft</li>
+              <li>
+                Open the output and add your team's specific rules, exceptions,
+                and context
+              </li>
+              <li>
+                Save to
+                <span class="mono" style="font-size: 13px; color: var(--ink)"
+                  >.claude/skills/</span
+                >
+                in your repo
+              </li>
+            </ul>
+            <p>
+              This takes roughly 10–15 minutes per skill and produces output
+              that's better than either approach alone: the completeness of a
+              generated skill with the depth of a hand-written one.
+            </p>
+
+            <div class="verdict">
+              <h3>Bottom line</h3>
+              <p>
+                Use Skillify when knowledge exists in a document somewhere.
+                Write by hand when it only exists in your team's heads — or use
+                Skillify to generate the structure and fill in the gaps
+                manually. The worst outcome is spending two hours writing a
+                skill from scratch when a 30-second generate + 10-minute review
+                would have produced a better result.
+              </p>
+            </div>
+
+            <div class="cta-block">
+              <h2>Generate your first skill</h2>
+              <p>
+                Paste any technical URL. Get a structured Skill.md in 30
+                seconds. Review and customise from there.
+              </p>
+              <a class="btn-primary" href="/#tool">Open the converter →</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <footer>
+      <div class="col">
+        <div class="brand" style="margin-bottom: 12px">
+          <svg
+            class="brand-mark"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 512 512"
+            aria-hidden="true"
+          >
+            <rect width="512" height="512" rx="112" fill="#080A0F" />
+            <rect
+              x="12"
+              y="12"
+              width="488"
+              height="488"
+              rx="100"
+              fill="none"
+              stroke="#f68c36"
+              stroke-width="12"
+            />
+            <text
+              x="256"
+              y="334"
+              text-anchor="middle"
+              font-family="Inter, ui-sans-serif, system-ui, sans-serif"
+              font-size="342"
+              font-weight="850"
+              letter-spacing="-18"
+              fill="#F8FAFC"
+            >
+              S
+            </text>
+            <rect
+              x="354"
+              y="390"
+              width="68"
+              height="28"
+              rx="7"
+              fill="#f68c36"
+            />
+          </svg>
+          <span style="color: var(--ink)">Skillify</span>
+        </div>
+        <span style="max-width: 36ch; color: var(--ink-3); line-height: 1.6"
+          >A static page for engineers who don't want another SaaS in their
+          stack.</span
+        >
+      </div>
+      <div class="col">
+        <h5>Product</h5>
+        <a href="/#tool">Converter</a>
+        <a href="/#how">Pipeline</a>
+        <a href="/#anatomy">Anatomy</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div class="col">
+        <h5>Learn</h5>
+        <a href="/what-is-skill-md.html">What is Skill.md?</a>
+        <a href="/how-to-create-claude-skills.html">How to create skills</a>
+        <a href="/alternatives.html">Alternatives</a>
+      </div>
+      <div class="col">
+        <h5>Legal-ish</h5>
+        <a href="#">MIT · no warranties</a>
+        <span style="color: var(--ink-4)">v0.1 · 2026</span>
+      </div>
+      <p class="analytics-notice">
+        This site uses Google Analytics (GA4) solely to count page visits — no
+        personal data is collected, stored, or shared with third parties.
+      </p>
+    </footer>
+  </body>
+</html>
