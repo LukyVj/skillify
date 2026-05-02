@@ -18,6 +18,7 @@
   --green: oklch(74% 0.16 150);
   --red: oklch(72% 0.18 25);
   --radius: 12px;
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }

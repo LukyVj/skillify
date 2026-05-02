@@ -41,8 +41,14 @@ export function Footer() {
       </div>
       <div className="col">
         <h5>Legal-ish</h5>
-        <a href="#">MIT · no warranties</a>
-        <a href="#">Privacy</a>
+        <a
+          href="https://opensource.org/licenses/MIT"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          MIT · no warranties
+        </a>
+        <Link href="/#privacy">Privacy</Link>
         <span style={{ color: "var(--ink-4)" }}>v0.1 · 2026</span>
       </div>
       <p className="analytics-notice">

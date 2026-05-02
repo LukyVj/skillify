@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import "./globals.css";
+import "./light-mode.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://getskillify.dev"),
@@ -30,6 +32,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <Script
+          id="skillify-theme-boot"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var k="skillify-theme";var t=localStorage.getItem(k);document.documentElement.dataset.theme=t==="light"?"light":"dark";}catch(e){document.documentElement.dataset.theme="dark";}})();`,
+          }}
+        />
         <link rel="icon" href="/favicon/favicon.ico" sizes="any" />
         <link rel="icon" href="/favicon/favicon.svg" type="image/svg+xml" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16.png" />
@@ -59,6 +68,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Nav />
         {children}
         <Footer />
+        <ThemeToggle />
       </body>
     </html>
   );
