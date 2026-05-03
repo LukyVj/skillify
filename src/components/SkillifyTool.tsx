@@ -593,6 +593,116 @@ Rules:
 - Scope: synthesize ALL provided doc pages into one cohesive skill. Prefer the entry page for overall framing; fold in unique details from every subsequent page. Minimize redundancy but maximize coverage — each distinct concept, API, or workflow deserves its own pattern or reference entry. More pages = more patterns needed. Do not truncate coverage.
 ${DOCS_SHARED_RULES}`;
 
+const DOCS_CLUSTER_PROMPT = `You are a documentation organizer. Given a list of documentation page URLs, group them into 2–6 logical clusters that each represent a coherent workflow or topic area.
+
+Output ONLY a JSON array. No markdown code fences, no commentary before or after.
+
+Schema: [{"name":"Cluster Name","pages":["https://...","https://..."]}]
+
+Rules:
+- Minimum 2 clusters, maximum 6 clusters.
+- Each cluster name must be Title Cased, concise (2–5 words), and describe a coherent workflow or topic (e.g. "Getting Started", "Routing & Data Fetching", "Deployment").
+- Do not name any cluster "Misc", "Other", or "General" — every cluster must have a meaningful name.
+- No page may appear in more than one cluster.
+- Every URL from the input must appear in exactly one cluster.
+- Infer cluster topics from URL path segments (e.g. /routing/, /components/, /deployment/).
+- The entry/index page belongs in whichever cluster is most foundational.`;
+
+function fallbackCluster(urls: string[]): { name: string; pages: string[] }[] {
+  const mid = Math.ceil(urls.length / 2);
+  return [
+    { name: "Part 1", pages: urls.slice(0, mid) },
+    { name: "Part 2", pages: urls.slice(mid) },
+  ];
+}
+
+function parseClusterResponse(
+  raw: string,
+  allUrls: string[]
+): { name: string; pages: string[] }[] {
+  const cleaned = raw
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/```\s*$/i, "")
+    .trim();
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(cleaned);
+  } catch {
+    const start = cleaned.indexOf("[");
+    const end = cleaned.lastIndexOf("]");
+    if (start >= 0 && end > start) {
+      try {
+        parsed = JSON.parse(cleaned.slice(start, end + 1));
+      } catch {
+        return fallbackCluster(allUrls);
+      }
+    } else return fallbackCluster(allUrls);
+  }
+  if (!Array.isArray(parsed)) return fallbackCluster(allUrls);
+
+  const out: { name: string; pages: string[] }[] = [];
+  const usedKeys = new Set<string>();
+
+  for (const item of parsed) {
+    if (!item || typeof item !== "object") continue;
+    const name = (item as { name?: unknown }).name;
+    const pages = (item as { pages?: unknown }).pages;
+    if (typeof name !== "string" || !Array.isArray(pages)) continue;
+    const validPages = (pages as unknown[])
+      .filter((u): u is string => typeof u === "string")
+      .filter((u) => allUrls.some((a) => normalizeUrlKey(a) === normalizeUrlKey(u)))
+      .filter((u) => {
+        const k = normalizeUrlKey(u);
+        if (usedKeys.has(k)) return false;
+        usedKeys.add(k);
+        return true;
+      });
+    if (name.trim() && validPages.length > 0) {
+      out.push({ name: name.trim(), pages: validPages });
+    }
+  }
+
+  // Redistribute any missed URLs into the first cluster
+  const missed = allUrls.filter((u) => !usedKeys.has(normalizeUrlKey(u)));
+  if (missed.length > 0) {
+    if (out.length > 0) out[0] = { ...out[0], pages: [...out[0].pages, ...missed] };
+    else out.push({ name: "Documentation", pages: missed });
+  }
+
+  if (out.length < 2) return fallbackCluster(allUrls);
+  if (out.length > 6) {
+    const keep = out.slice(0, 6);
+    const overflow = out.slice(6).flatMap((c) => c.pages);
+    keep[5] = { ...keep[5], pages: [...keep[5].pages, ...overflow] };
+    return keep;
+  }
+  return out;
+}
+
+async function clusterDocUrls(params: {
+  provider: Provider;
+  apiKey: string;
+  model: string;
+  urls: string[];
+}): Promise<{ name: string; pages: string[] }[]> {
+  const urlList = params.urls.map((u, i) => `${i + 1}. ${u}`).join("\n");
+  const fn =
+    params.provider === "anthropic"
+      ? callAnthropic
+      : params.provider === "google"
+        ? callGoogle
+        : callOpenAI;
+  const { text } = await fn({
+    apiKey: params.apiKey,
+    model: params.model,
+    system: DOCS_CLUSTER_PROMPT,
+    userMsg: `Group these ${params.urls.length} documentation URLs into clusters:\n\n${urlList}\n\nReturn JSON only.`,
+    maxTokens: 2048,
+  });
+  return parseClusterResponse(text, params.urls);
+}
+
 function userPromptFromDocPages(pages: { url: string; content: string }[]): string {
   const blocks = pages.map((p, i) => {
     const tag = i === 0 ? "DOCS ENTRY PAGE" : `DOCS PAGE ${i + 1}`;
@@ -1108,6 +1218,209 @@ function DocsSourceReview(props: {
   );
 }
 
+/* ---------------- Docs cluster review ---------------- */
+function DocsClustersReview(props: {
+  clusters: { name: string; pages: string[] }[];
+  onChangeClusters: (clusters: { name: string; pages: string[] }[]) => void;
+  onCancel: () => void;
+}) {
+  const { clusters, onChangeClusters, onCancel } = props;
+  const [editingIdx, setEditingIdx] = useState<number | null>(null);
+  const [editingName, setEditingName] = useState("");
+  const [mergeSet, setMergeSet] = useState<Set<number>>(new Set());
+
+  function startRename(i: number) {
+    setEditingIdx(i);
+    setEditingName(clusters[i].name);
+  }
+
+  function commitRename() {
+    if (editingIdx === null) return;
+    const trimmed = editingName.trim();
+    if (trimmed) {
+      onChangeClusters(clusters.map((c, idx) => (idx === editingIdx ? { ...c, name: trimmed } : c)));
+    }
+    setEditingIdx(null);
+  }
+
+  function deleteAt(i: number) {
+    if (clusters.length <= 2) return;
+    const removed = clusters[i];
+    const next = clusters.filter((_, idx) => idx !== i);
+    const largestIdx = next.reduce(
+      (best, c, idx) => (c.pages.length > next[best].pages.length ? idx : best),
+      0
+    );
+    next[largestIdx] = { ...next[largestIdx], pages: [...next[largestIdx].pages, ...removed.pages] };
+    onChangeClusters(next);
+    setMergeSet((s) => {
+      const n = new Set(s);
+      n.delete(i);
+      return n;
+    });
+  }
+
+  function toggleMerge(i: number) {
+    setMergeSet((s) => {
+      const n = new Set(s);
+      if (n.has(i)) n.delete(i);
+      else n.add(i);
+      return n;
+    });
+  }
+
+  function doMerge() {
+    if (mergeSet.size < 2) return;
+    const indices = [...mergeSet].sort((a, b) => a - b);
+    const [primary, ...rest] = indices;
+    const combined = indices.flatMap((i) => clusters[i].pages);
+    const next = clusters
+      .map((c, i): { name: string; pages: string[] } | null => {
+        if (rest.includes(i)) return null;
+        if (i === primary) return { ...c, pages: combined };
+        return c;
+      })
+      .filter((c): c is { name: string; pages: string[] } => c !== null);
+    onChangeClusters(next);
+    setMergeSet(new Set());
+  }
+
+  const totalPages = clusters.reduce((n, c) => n + c.pages.length, 0);
+
+  return (
+    <div className="cluster-review-panel">
+      <div className="cluster-review-head">
+        <span className="cluster-review-title">
+          {clusters.length} cluster{clusters.length !== 1 ? "s" : ""} · {totalPages} pages
+        </span>
+        <div className="cluster-review-actions">
+          {mergeSet.size >= 2 && (
+            <button type="button" className="cluster-merge-btn" onClick={doMerge}>
+              Merge {mergeSet.size}
+            </button>
+          )}
+          <button type="button" className="source-review-cancel" onClick={onCancel}>
+            Cancel
+          </button>
+        </div>
+      </div>
+      <p className="cluster-review-lead">
+        Review clusters below. Click a name to rename, check two or more to merge, or delete down to
+        2. Then click <b>Generate {clusters.length} skills</b>.
+      </p>
+      <div className="cluster-list">
+        {clusters.map((cluster, i) => (
+          <div key={i} className={`cluster-card${mergeSet.has(i) ? " merge-selected" : ""}`}>
+            <div className="cluster-card-head">
+              <label className="cluster-merge-check" title="Select to merge">
+                <input type="checkbox" checked={mergeSet.has(i)} onChange={() => toggleMerge(i)} />
+              </label>
+              {editingIdx === i ? (
+                <input
+                  autoFocus
+                  className="cluster-name-input"
+                  value={editingName}
+                  onChange={(e) => setEditingName(e.target.value)}
+                  onBlur={commitRename}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") { e.preventDefault(); commitRename(); }
+                    if (e.key === "Escape") setEditingIdx(null);
+                  }}
+                />
+              ) : (
+                <span className="cluster-name" onClick={() => startRename(i)} title="Click to rename">
+                  {cluster.name}
+                </span>
+              )}
+              <span className="cluster-page-count">
+                {cluster.pages.length} page{cluster.pages.length !== 1 ? "s" : ""}
+              </span>
+              {clusters.length > 2 && (
+                <button
+                  type="button"
+                  className="cluster-delete-btn"
+                  onClick={() => deleteAt(i)}
+                  aria-label="Delete cluster"
+                  title="Delete (pages go to largest cluster)"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+            <ul className="cluster-pages-list">
+              {cluster.pages.slice(0, 5).map((u, j) => (
+                <li key={j} className="cluster-page-item" title={u}>
+                  {u.replace(/^https?:\/\/[^/]+/, "") || "/"}
+                </li>
+              ))}
+              {cluster.pages.length > 5 && (
+                <li className="cluster-page-more">+{cluster.pages.length - 5} more</li>
+              )}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Multi-output grid ---------------- */
+function SkillOutputsGrid(props: {
+  outputs: { name: string; content: string; slug: string }[];
+  blocked: boolean;
+  onDownload: (content: string, slug: string) => void;
+  onCopy: (content: string) => void;
+}) {
+  const { outputs, blocked, onDownload, onCopy } = props;
+  return (
+    <div className="skill-outputs-grid">
+      <div className="skill-outputs-header">
+        {outputs.length} skill file{outputs.length !== 1 ? "s" : ""} generated
+      </div>
+      <div className="skill-outputs-cards">
+        {outputs.map((o, i) => (
+          <div key={i} className="skill-output-card">
+            <div className="skill-output-card-name">{o.name}</div>
+            <div className="skill-output-card-meta">
+              {o.content.split("\n").length} lines · {o.content.length.toLocaleString()} bytes
+            </div>
+            <div className="skill-output-card-filename">{o.slug}.md</div>
+            <div className="skill-output-card-actions">
+              <button
+                type="button"
+                className="skill-output-btn"
+                disabled={blocked}
+                onClick={() => onCopy(o.content)}
+                title="Copy to clipboard"
+              >
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 4, verticalAlign: "-1px" }}>
+                  <rect x="9" y="9" width="13" height="13" rx="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+                Copy
+              </button>
+              <button
+                type="button"
+                className="skill-output-btn primary"
+                disabled={blocked}
+                onClick={() => onDownload(o.content, o.slug)}
+                title="Download .md"
+              >
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 4, verticalAlign: "-1px" }}>
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Download
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ---------------- Main SkillifyTool component ---------------- */
 type ToolBarState = "idle" | "run" | "ready" | "err";
 
@@ -1123,6 +1436,9 @@ export default function SkillifyTool() {
   const [docsMode, setDocsMode] = useState(false);
   const [docsComprehensive, setDocsComprehensive] = useState(false);
   const [docsStaging, setDocsStaging] = useState<DocsStaging | null>(null);
+  const [docsClusters, setDocsClusters] = useState<{ name: string; pages: string[] }[] | null>(null);
+  const [skillOutputs, setSkillOutputs] = useState<{ name: string; content: string; slug: string }[]>([]);
+  const [docsClusterProgress, setDocsClusterProgress] = useState<{ current: number; total: number } | null>(null);
   const [sourcesUsedInLastRun, setSourcesUsedInLastRun] = useState<SourceUsed[]>([]);
   const [apiKey, setApiKey] = useState("");
   const [running, setRunning] = useState(false);
@@ -1279,6 +1595,169 @@ export default function SkillifyTool() {
         );
       };
 
+      // —— Docs phase 3: generate one skill per cluster ——
+      if (docsClusters) {
+        setSkillOutputs([]);
+        setRunning(true);
+        setCopyEnabled(false);
+        setDlEnabled(false);
+        setWarnings([]);
+        startTimer();
+        const { primaryUrl, primaryContent, docUrls } = docsStaging!;
+        const fn =
+          provider === "anthropic" ? callAnthropic : provider === "google" ? callGoogle : callOpenAI;
+        const docsPrompt = docsComprehensive ? DOCS_SYS_PROMPT_COMPREHENSIVE : DOCS_SYS_PROMPT_QUICK;
+        const docsMaxTokens = docsComprehensive
+          ? (provider === "google" ? 32768 : 16384)
+          : (provider === "google" ? 12288 : 8192);
+
+        try {
+          const outputs: { name: string; content: string; slug: string }[] = [];
+          let totalTokens = 0;
+
+          for (let ci = 0; ci < docsClusters.length; ci++) {
+            const cluster = docsClusters[ci];
+            setDocsClusterProgress({ current: ci + 1, total: docsClusters.length });
+            setStatus(
+              "run",
+              `Generating skill ${ci + 1} of ${docsClusters.length}: ${cluster.name}…`,
+              "distill"
+            );
+            setOutputHtml(
+              `<div class="placeholder">
+<div class="step"><span class="n">›</span><div><b>Cluster ${ci + 1}/${docsClusters.length}: ${escHtml(cluster.name)}</b></div></div>
+<div class="step"><span class="n">›</span><div><b>Fetching ${cluster.pages.length} page${cluster.pages.length !== 1 ? "s" : ""}…</b></div></div>
+</div>`
+            );
+
+            const pages: { url: string; content: string }[] = [];
+            for (const pageUrl of cluster.pages) {
+              if (normalizeUrlKey(pageUrl) === normalizeUrlKey(primaryUrl)) {
+                pages.push({ url: primaryUrl, content: primaryContent.slice(0, DOCS_MAX_CHARS_PER_PAGE) });
+                continue;
+              }
+              try {
+                const body = await fetchArticle(pageUrl, DOCS_MAX_CHARS_PER_PAGE);
+                pages.push({ url: pageUrl, content: body });
+              } catch {
+                /* skip blocked/paywalled pages */
+              }
+            }
+
+            if (pages.length === 0) continue;
+
+            setOutputHtml(
+              `<div class="placeholder">
+<div class="step"><span class="n">›</span><div><b>Cluster ${ci + 1}/${docsClusters.length}: ${escHtml(cluster.name)}</b></div></div>
+<div class="step"><span class="n">›</span><div><b>${pages.length} pages fetched — distilling with ${escHtml(selectedModel)}…</b></div></div>
+</div>`
+            );
+
+            const { text, tokens } = await fn({
+              apiKey,
+              model: selectedModel,
+              system: docsPrompt,
+              userMsg: userPromptFromDocPages(pages),
+              maxTokens: docsMaxTokens,
+            });
+
+            totalTokens += tokens;
+
+            if (text && text.length >= 80) {
+              const md = text.trim();
+              const fallbackSlug = cluster.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+              const slug = deriveSlug(md, fallbackSlug);
+              outputs.push({ name: cluster.name, content: md, slug });
+            }
+          }
+
+          setTokenMeter(`${totalTokens.toLocaleString()} tokens`);
+          setSkillOutputs(outputs);
+          setDocsStaging(null);
+          setDocsClusters(null);
+          setDocsClusterProgress(null);
+          setStatus("ready", `${outputs.length} skill${outputs.length !== 1 ? "s" : ""} generated.`, "ready");
+          setOutputHtml(null);
+
+          const allWarnings = outputs.flatMap((o) => lintSkillMarkdown(o.content));
+          setWarnings(allWarnings);
+          const blocking = hasBlockingWarnings(allWarnings);
+          setCopyEnabled(!blocking);
+          setDlEnabled(!blocking);
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (window as any).gtag?.("event", "skill_generated", {
+            model_provider: provider,
+            model_id: selectedModel,
+            docs_cluster_count: outputs.length,
+          });
+          fetch("/api/skill-count/increment", { method: "POST" }).catch(() => {});
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          setOutputHtml(
+            `<div class="placeholder" style="color: var(--red);">
+<div class="title"># error</div>
+${escHtml(msg)}
+</div>`
+          );
+          setStatus("err", msg || "Something broke.", "error");
+          setDocsClusterProgress(null);
+        } finally {
+          setRunning(false);
+          stopTimer();
+        }
+        return;
+      }
+
+      // —— Docs phase 2: cluster the discovered pages ——
+      if (docsStaging) {
+        setRunning(true);
+        startTimer();
+        const { primaryUrl, docUrls } = docsStaging;
+        const allUrls = [primaryUrl, ...docUrls];
+        try {
+          setStatus("run", `Clustering ${allUrls.length} pages with ${selectedModel}…`, "cluster");
+          setOutputHtml(
+            `<div class="placeholder">
+<div class="step"><span class="n">›</span><div><b>Asking ${escHtml(selectedModel)} to group ${allUrls.length} page${allUrls.length !== 1 ? "s" : ""} into clusters…</b></div></div>
+</div>`
+          );
+
+          const clusters = await clusterDocUrls({
+            provider,
+            apiKey,
+            model: selectedModel,
+            urls: allUrls,
+          });
+
+          setDocsClusters(clusters);
+          setOutputHtml(
+            `<div class="placeholder">
+<div class="step"><span class="n">›</span><div><b>${clusters.length} cluster${clusters.length !== 1 ? "s" : ""} identified</b></div></div>
+<div class="step"><span class="n">›</span><div><b>Review clusters on the right, then click <span style="color:var(--accent)">Generate ${clusters.length} skills</span>.</b></div></div>
+</div>`
+          );
+          setStatus(
+            "idle",
+            `${clusters.length} clusters ready — review and click Generate ${clusters.length} skills.`,
+            "review"
+          );
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          setOutputHtml(
+            `<div class="placeholder" style="color: var(--red);">
+<div class="title"># error</div>
+${escHtml(msg)}
+</div>`
+          );
+          setStatus("err", msg || "Something broke.", "error");
+        } finally {
+          setRunning(false);
+          stopTimer();
+        }
+        return;
+      }
+
       // —— Extended phase 2: fetch chosen supplementary URLs, then distill ——
       if (extendedStaging) {
         setSourcesUsedInLastRun([]);
@@ -1325,60 +1804,6 @@ export default function SkillifyTool() {
 
           await runDistill(sources);
           setExtendedStaging(null);
-        } catch (err) {
-          const msg = err instanceof Error ? err.message : String(err);
-          setOutputHtml(
-            `<div class="placeholder" style="color: var(--red);">
-<div class="title"># error</div>
-${escHtml(msg)}
-</div>`
-          );
-          setStatus("err", msg || "Something broke.", "error");
-        } finally {
-          setRunning(false);
-          stopTimer();
-        }
-        return;
-      }
-
-      // —— Docs phase 2: fetch all discovered doc pages, then distill ——
-      if (docsStaging) {
-        setSourcesUsedInLastRun([]);
-        setRunning(true);
-        setCopyEnabled(false);
-        setDlEnabled(false);
-        setWarnings([]);
-        startTimer();
-        setOutputHtml(
-          `<div class="placeholder"><div class="step"><span class="n">›</span><div><b>fetching doc pages…</b></div></div></div>`
-        );
-        try {
-          const { primaryUrl, primaryContent, docUrls } = docsStaging;
-          const pages: { url: string; content: string }[] = [
-            { url: primaryUrl, content: primaryContent.slice(0, DOCS_MAX_CHARS_PER_PAGE) },
-          ];
-          let skipped = 0;
-          for (let i = 0; i < docUrls.length; i++) {
-            const u = docUrls[i];
-            setStatus("run", `Fetching doc page ${i + 1}/${docUrls.length}…`, "fetch");
-            setOutputHtml(
-              `<div class="placeholder">
-<div class="step"><span class="n">›</span><div><b>entry page cached (${primaryContent.length.toLocaleString()} chars)</b></div></div>
-<div class="step"><span class="n">›</span><div><b>fetching page ${i + 1}/${docUrls.length}: ${escHtml(u)}</b></div></div>
-</div>`
-            );
-            try {
-              const body = await fetchArticle(u, DOCS_MAX_CHARS_PER_PAGE);
-              pages.push({ url: u, content: body });
-            } catch {
-              skipped += 1;
-            }
-          }
-          if (skipped > 0) {
-            flashToast(`Skipped ${skipped} page(s) (blocked, paywalled, or empty).`);
-          }
-          await runDistillDocs(pages);
-          setDocsStaging(null);
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err);
           setOutputHtml(
@@ -1532,7 +1957,7 @@ ${escHtml(msg)}
         stopTimer();
       }
     },
-    [urlValue, apiKey, provider, model, extendedMode, extraSourceMax, extendedStaging, docsMode, docsComprehensive, docsStaging]
+    [urlValue, apiKey, provider, model, extendedMode, extraSourceMax, extendedStaging, docsMode, docsComprehensive, docsStaging, docsClusters, docsClusterProgress]
   );
 
   useEffect(() => {
@@ -1542,6 +1967,8 @@ ${escHtml(msg)}
   useEffect(() => {
     if (!docsMode) {
       setDocsStaging(null);
+      setDocsClusters(null);
+      setSkillOutputs([]);
       setDocsComprehensive(false);
     }
   }, [docsMode]);
@@ -1549,6 +1976,8 @@ ${escHtml(msg)}
   useEffect(() => {
     setExtendedStaging(null);
     setDocsStaging(null);
+    setDocsClusters(null);
+    setSkillOutputs([]);
   }, [urlValue]);
 
   // Keyboard shortcuts
@@ -1625,6 +2054,7 @@ ${escHtml(msg)}
 
   function handleCancelDocsReview() {
     setDocsStaging(null);
+    setDocsClusters(null);
     if (lastMdRef.current) {
       setOutputHtml(renderMd(lastMdRef.current));
       setStatus("ready", "Docs review cancelled — showing previous skill.", "ready");
@@ -1632,6 +2062,33 @@ ${escHtml(msg)}
       setOutputHtml(null);
       setStatus("idle", "Docs review cancelled.", "idle");
     }
+  }
+
+  function handleCancelClustersReview() {
+    setDocsClusters(null);
+    if (lastMdRef.current) {
+      setOutputHtml(renderMd(lastMdRef.current));
+      setStatus("ready", "Cluster review cancelled — showing previous skill.", "ready");
+    } else {
+      setOutputHtml(null);
+      setStatus("idle", "Cluster review cancelled.", "idle");
+    }
+  }
+
+  function handleDownloadSkill(content: string, slug: string) {
+    const filename = slug.endsWith(".md") ? slug : slug + ".md";
+    const blob = new Blob([content], { type: "text/markdown" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    flashToast(`saved ${a.download}`);
+  }
+
+  async function handleCopySkill(content: string) {
+    await navigator.clipboard.writeText(content);
+    flashToast("copied to clipboard");
   }
 
   const apiPlaceholder =
@@ -1731,7 +2188,7 @@ ${escHtml(msg)}
                     </span>
                     {docsMode && (
                       <span className="extended-desc">
-                        Fetches the entry page, extracts all links under the same URL path prefix, and presents them for review. Remove or add pages before fetching. All selected pages are synthesized into one skill. <b>Works best with documentation sites that use consistent URL structure.</b>
+                        Fetches the entry page, extracts all links under the same URL path prefix, and presents them for review. Remove or add pages, then the model groups them into clusters — each cluster becomes a separate Skill.md file you can download. <b>Works best with documentation sites that use consistent URL structure.</b>
                       </span>
                     )}
                   </span>
@@ -1852,7 +2309,17 @@ ${escHtml(msg)}
 
             <button type="submit" className="submit" id="runBtn" disabled={running}>
               <span id="runBtnLabel">
-                {running ? "Running…" : docsStaging ? "Fetch & distill all pages" : extendedStaging ? "Fetch & distill" : "Distill into skill"}
+                {running
+                ? docsClusterProgress
+                  ? `Generating skill ${docsClusterProgress.current} of ${docsClusterProgress.total}…`
+                  : "Running…"
+                : docsClusters
+                  ? `Generate ${docsClusters.length} skill${docsClusters.length !== 1 ? "s" : ""}`
+                  : docsStaging
+                    ? "Cluster pages"
+                    : extendedStaging
+                      ? "Fetch & distill"
+                      : "Distill into skill"}
               </span>
               <span className="kbd">⌘ ⏎</span>
             </button>
@@ -1865,43 +2332,56 @@ ${escHtml(msg)}
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                 <polyline points="14 2 14 8 20 8" />
               </svg>
-              <span className="filename-wrap">
-                <span
-                  className="filename"
-                  ref={outNameRef}
-                  contentEditable
-                  suppressContentEditableWarning
-                  spellCheck={false}
-                  title="Click to rename"
-                  onKeyDown={handleOutNameKeyDown}
-                  onBlur={handleOutNameBlur}
-                >
-                  {outName}
+              {skillOutputs.length > 0 ? (
+                <span className="filename-wrap">
+                  <span className="filename" style={{ cursor: "default" }}>
+                    {skillOutputs.length} skill{skillOutputs.length !== 1 ? "s" : ""} generated
+                  </span>
                 </span>
-                <svg className="edit-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                </svg>
-              </span>
+              ) : (
+                <span className="filename-wrap">
+                  <span
+                    className="filename"
+                    ref={outNameRef}
+                    contentEditable
+                    suppressContentEditableWarning
+                    spellCheck={false}
+                    title="Click to rename"
+                    onKeyDown={handleOutNameKeyDown}
+                    onBlur={handleOutNameBlur}
+                  >
+                    {outName}
+                  </span>
+                  <svg className="edit-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  </svg>
+                </span>
+              )}
               <span style={{ color: "var(--ink-4)" }}>·</span>
-              <span id="outMeta">{outMeta}</span>
-              <div className="actions">
-                <button id="copyBtn" disabled={!copyEnabled} onClick={handleCopy}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 5, verticalAlign: "-1px" }}>
-                    <rect x="9" y="9" width="13" height="13" rx="2" />
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                  </svg>
-                  Copy
-                </button>
-                <button id="dlBtn" disabled={!dlEnabled} onClick={handleDownload}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 5, verticalAlign: "-1px" }}>
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
-                  Download .md
-                </button>
-              </div>
+              <span id="outMeta">{skillOutputs.length > 0
+                ? skillOutputs.map(o => o.content.split("\n").length).reduce((a, b) => a + b, 0) + " lines total"
+                : outMeta}
+              </span>
+              {skillOutputs.length === 0 && (
+                <div className="actions">
+                  <button id="copyBtn" disabled={!copyEnabled} onClick={handleCopy}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 5, verticalAlign: "-1px" }}>
+                      <rect x="9" y="9" width="13" height="13" rx="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                    Copy
+                  </button>
+                  <button id="dlBtn" disabled={!dlEnabled} onClick={handleDownload}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 5, verticalAlign: "-1px" }}>
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Download .md
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="out-body md" id="output">
@@ -1915,7 +2395,7 @@ ${escHtml(msg)}
                   flashToast={flashToast}
                 />
               )}
-              {docsStaging && (
+              {docsStaging && !docsClusters && (
                 <DocsSourceReview
                   staging={docsStaging}
                   onChangeDocUrls={(urls) =>
@@ -1925,16 +2405,31 @@ ${escHtml(msg)}
                   flashToast={flashToast}
                 />
               )}
-              {!extendedStaging && !docsStaging && sourcesUsedInLastRun.length > 0 && (
+              {docsClusters && (
+                <DocsClustersReview
+                  clusters={docsClusters}
+                  onChangeClusters={setDocsClusters}
+                  onCancel={handleCancelClustersReview}
+                />
+              )}
+              {!extendedStaging && !docsStaging && !docsClusters && sourcesUsedInLastRun.length > 0 && (
                 <SourcesUsedBanner sources={sourcesUsedInLastRun} />
               )}
-              <div
-                className="out-md-surface"
-                dangerouslySetInnerHTML={
-                  outputHtml !== null
-                    ? { __html: outputHtml }
-                    : {
-                      __html: `<div class="placeholder">
+              {skillOutputs.length > 0 ? (
+                <SkillOutputsGrid
+                  outputs={skillOutputs}
+                  blocked={hasBlockingWarnings(warnings) && !copyEnabled}
+                  onDownload={handleDownloadSkill}
+                  onCopy={handleCopySkill}
+                />
+              ) : (
+                <div
+                  className="out-md-surface"
+                  dangerouslySetInnerHTML={
+                    outputHtml !== null
+                      ? { __html: outputHtml }
+                      : {
+                        __html: `<div class="placeholder">
   <div class="title"># readme — what skillify will produce</div>
   <div class="step"><span class="n">01</span><div><b>YAML frontmatter</b><div class="desc">name, description, optional deps · sources · generated_by</div></div></div>
   <div class="step"><span class="n">02</span><div><b>When to use</b><div class="desc">disambiguating triggers · post-vs-not table</div></div></div>
@@ -1943,9 +2438,10 @@ ${escHtml(msg)}
   <div class="step"><span class="n">05</span><div><b>Pitfalls</b><div class="desc">bad/good code pairs · ordering rules</div></div></div>
   <div class="step"><span class="n">06</span><div><b>Reference</b><div class="desc">compact lookup table of APIs &amp; flags</div></div></div>
 </div>`,
-                    }
-                }
-              />
+                      }
+                  }
+                />
+              )}
             </div>
 
             {warnings.length > 0 && (
