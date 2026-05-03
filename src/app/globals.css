@@ -1483,6 +1483,14 @@ main p {
   max-width: 120px;
 }
 
+.docs-depth-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  padding-left: 25px;
+  margin-top: 8px;
+}
+
 .row-2 {
   display: grid;
   grid-template-columns: 1fr 1.4fr;
