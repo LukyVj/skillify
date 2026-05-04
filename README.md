@@ -33,7 +33,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run start` | Run production build     |
 | `npm run lint` | ESLint                   |
 
-No `.env` file is required for local development; optional environment variables can be added if you extend the app.
+No `.env` file is required for local development. Copy `.env.example` to `.env.local` if you want to enable the optional features (skill counter, analytics).
 
 ## Stack
 
