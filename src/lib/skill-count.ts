@@ -20,12 +20,12 @@ export async function fetchSkillCount(): Promise<number> {
   return Number(row?.count ?? 0);
 }
 
-export async function incrementSkillCount(): Promise<void> {
+export async function incrementSkillCount(by = 1): Promise<void> {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
 
   await fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_skill_count`, {
     method: "POST",
     headers,
-    body: "{}",
+    body: JSON.stringify({ by_count: by }),
   });
 }

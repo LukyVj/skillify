@@ -1691,7 +1691,7 @@ export default function SkillifyTool() {
             model_id: selectedModel,
             docs_cluster_count: outputs.length,
           });
-          fetch("/api/skill-count/increment", { method: "POST" }).catch(() => {});
+          fetch("/api/skill-count/increment", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ count: outputs.length }) }).catch(() => {});
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err);
           setOutputHtml(
