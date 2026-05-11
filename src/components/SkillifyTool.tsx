@@ -51,7 +51,7 @@ const MODELS: Record<Provider, { id: string; label: string }[]> = {
   ],
 };
 
-/** Logged on every LLM roundtrip — filter console with `[Skillify]`. */
+/** Metadata for optional verbose logs (`NEXT_PUBLIC_DEBUG=true`). */
 type SkillifyDebugFlow =
   | "url-single-distill"
   | "url-multi-distill"
@@ -984,8 +984,23 @@ These pages are from the same documentation section. Synthesize them into one co
 Produce the ${format === "html" ? "HTML document" : "Skill.md"}.`;
 }
 
-/** Dev-only style logs (always on) — filter console with `[Skillify]`. */
+/**
+ * Verbose Skillify logs (errors detail, full provider JSON). Off by default.
+ * Set `NEXT_PUBLIC_DEBUG=true` in `.env.local` — Next.js only exposes `NEXT_PUBLIC_*` to the client.
+ */
+function skillifyDebugEnabled(): boolean {
+  try {
+    if (typeof process === "undefined") return false;
+    const d = process.env.NEXT_PUBLIC_DEBUG;
+    return d === "true" || d === "1";
+  } catch {
+    return false;
+  }
+}
+
+/** Dev-only — only runs when `NEXT_PUBLIC_DEBUG=true`. */
 function skillifyDebug(label: string, data: Record<string, unknown>): void {
+  if (!skillifyDebugEnabled()) return;
   try {
     console.warn(`[Skillify] ${label}`, data);
   } catch {
@@ -1021,6 +1036,7 @@ function logSkillifyProviderRoundtrip(
     reasoningEffortSent?: "low" | null;
   }
 ): void {
+  if (!skillifyDebugEnabled()) return;
   try {
     const context = {
       api,
