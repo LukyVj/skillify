@@ -472,6 +472,11 @@ h1 em {
   margin: 0 0 28px;
   font-size: 14px;
 }
+/* .article-body a beats .btn-primary alone; keep primary CTA readable on the gradient */
+.article-body .cta-block .btn-primary {
+  color: #0a0c10;
+  border-bottom: none;
+}
 
 /* code block (shared across article pages) */
 .code-block {

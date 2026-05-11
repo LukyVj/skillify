@@ -108,6 +108,9 @@ html[data-theme="light"] .submit {
     0 12px 32px -10px color-mix(in oklab, var(--accent) 45%, transparent),
     0 2px 8px -2px color-mix(in oklab, var(--accent) 25%, transparent);
 }
+html[data-theme="light"] .article-body .cta-block .btn-primary {
+  color: #fffdf6;
+}
 
 html[data-theme="light"] .btn-ghost {
   background: linear-gradient(180deg, #00000006, #00000002);
