@@ -12,10 +12,11 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://getskillify.dev"),
   title: {
     template: "%s — Skillify",
-    default: "Skillify — Claude Agent Skill.md Generator | Free Browser Tool",
+    default:
+      "Skillify — Skill.md & HTML artifacts from URLs | Claude Agent skills (Thariq-style handoff)",
   },
   description:
-    "Convert any technical article or documentation URL into a Claude Agent Skill.md file. Free, browser-only, supports Anthropic, OpenAI, and Google APIs. No account required.",
+    "Turn a technical URL into a Claude Agent Skill.md or a self-contained HTML file for teams and LLMs—in the spirit of Thariq Shihipar's 'The unreasonable effectiveness of HTML'. Browser-only, BYO Anthropic, OpenAI, or Google key. No account.",
   openGraph: {
     siteName: "Skillify",
     images: [
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
         url: "/og-skillify.jpeg",
         width: 2048,
         height: 1483,
-        alt: "Skillify — Claude Agent Skill.md Generator",
+        alt: "Skillify — Skill.md and HTML skill artifacts from URLs",
       },
     ],
   },

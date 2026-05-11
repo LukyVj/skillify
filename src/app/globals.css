@@ -1792,6 +1792,8 @@ main p {
 .out-bar .actions {
   margin-left: auto;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 6px;
 }
 .out-bar .actions button {
@@ -1856,6 +1858,17 @@ main p {
 /* rendered markdown output lines */
 .out-body .out-md-surface {
   word-break: break-word;
+}
+
+/* HTML artifact preview (model output in sandboxed iframe — no scripts) */
+.out-body .html-artifact-frame {
+  display: block;
+  width: 100%;
+  min-height: 420px;
+  height: min(72vh, 900px);
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+  background: var(--panel);
 }
 
 .source-review-panel {
@@ -3499,11 +3512,13 @@ main p {
 }
 .skill-output-card-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   margin-top: 4px;
 }
 .skill-output-btn {
-  flex: 1;
+  flex: 1 1 30%;
+  min-width: 0;
   font-size: 11px;
   font-family: inherit;
   padding: 5px 8px;

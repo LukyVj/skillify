@@ -64,7 +64,7 @@ export function Footer() {
           MIT · no warranties
         </a>
         <Link href="/#privacy">Privacy</Link>
-        <span style={{ color: "var(--ink-4)" }}>v0.1 · 2026</span>
+        <span style={{ color: "var(--ink-4)" }}>v0.2 · 2026</span>
       </div>
       <p className="analytics-notice">
         This site uses Google Analytics (GA4) to count page visits and the number of skills generated — no personal data is collected, stored, or shared with third parties. No cookies are set beyond what Google Analytics requires. By continuing to use this site you acknowledge this use.

@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import SkillifyTool from "@/components/SkillifyTool";
 import AnatomySection from "@/components/AnatomySection";
+import {
+  THARIQ_HTML_ARTICLE_TITLE,
+  THARIQ_HTML_EFFECTIVENESS_HREF,
+} from "@/lib/thariq-html";
 
 export const metadata: Metadata = {
   alternates: { canonical: "https://getskillify.dev" },
@@ -12,7 +16,7 @@ const jsonLd = {
   name: "Skillify",
   url: "https://getskillify.dev",
   description:
-    "Convert any technical article or documentation URL into a Claude Agent Skill.md file. Free, browser-only, supports Anthropic, OpenAI, and Google APIs.",
+    "Turn technical URLs into Claude Agent Skill.md files or downloadable HTML artifacts—rich handoffs in the spirit of Thariq Shihipar's The unreasonable effectiveness of HTML. Free, browser-only, Anthropic, OpenAI, and Google APIs.",
   applicationCategory: "DeveloperApplication",
   operatingSystem: "Any",
   offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
@@ -58,9 +62,31 @@ export default function HomePage() {
                 >
                   Skill.md
                 </span>{" "}
-                — frontmatter, overview, patterns, pitfalls — ready to package and upload as a{" "}
-                <span className="serif">Claude Agent Skill.</span> Bring your own key. We never see
-                it.
+                for Claude Code—or a single{" "}
+                <span
+                  className="mono"
+                  style={{
+                    color: "var(--accent)",
+                    background: "#00000028",
+                    border: "1px solid var(--line-2)",
+                    padding: "1px 6px",
+                    borderRadius: 5,
+                    fontSize: 13,
+                  }}
+                >
+                  .html
+                </span>{" "}
+                you can hand to teammates or drop into another LLM. Markdown stays the package format
+                for agent skills; HTML follows the handoff pattern Thariq Shihipar lays out in{" "}
+                <a
+                  href={THARIQ_HTML_EFFECTIVENESS_HREF}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
+                >
+                  {THARIQ_HTML_ARTICLE_TITLE}
+                </a>
+                . Bring your own key. We never see it.
               </p>
 
               <div className="hero-cta-row">
@@ -90,7 +116,7 @@ export default function HomePage() {
               <div className="hero-meta">
                 <div><b>Client-side</b>No backend. No proxy.</div>
                 <div><b>BYO key</b>Anthropic · OpenAI · Google</div>
-                <div><b>Open output</b>Plain markdown</div>
+                <div><b>Open output</b>Skill.md or HTML artifact</div>
               </div>
             </div>
 
@@ -172,7 +198,7 @@ export default function HomePage() {
                 <rect x="3" y="14" width="7" height="7" />
                 <rect x="14" y="14" width="7" height="7" />
               </svg>
-              Any agent that loads .md skills
+              Agents load .md skills · optional .html for handoff
             </span>
             <span className="item" style={{ marginLeft: "auto", color: "var(--ink-3)" }}>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -192,8 +218,20 @@ export default function HomePage() {
             </div>
             <p style={{ maxWidth: "56ch" }}>
               The whole pipeline runs in your browser. We fetch the article, strip it to readable
-              markdown, and ask your model to author a skill. Your API key never leaves this tab —
-              there is no Skillify server for it to leave to.
+              markdown, and ask your model to author either a packaged{" "}
+              <span className="mono" style={{ fontSize: 13, color: "var(--accent)" }}>Skill.md</span>{" "}
+              or a self-contained{" "}
+              <span className="mono" style={{ fontSize: 13, color: "var(--accent)" }}>.html</span>{" "}
+              for humans and LLM handoff—same idea as the demos in{" "}
+              <a
+                href={THARIQ_HTML_EFFECTIVENESS_HREF}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
+              >
+                {THARIQ_HTML_ARTICLE_TITLE}
+              </a>
+              . Your API key never leaves this tab — there is no Skillify server for it to leave to.
             </p>
           </div>
 
@@ -205,11 +243,20 @@ export default function HomePage() {
           <div className="section-head">
             <div>
               <span className="eyebrow">Pipeline</span>
-              <h2 style={{ marginTop: 14 }}>Four passes,<br />one file.</h2>
+              <h2 style={{ marginTop: 14 }}>Four passes,<br />one artifact.</h2>
             </div>
             <p style={{ maxWidth: "56ch" }}>
-              Each step runs locally. There is no upload step, no headless browser farm, no log line
-              written about your URL. Open devtools — you can watch every byte.
+              Each step runs locally. You end with either Markdown for agent packages or HTML for
+              shareable, skimmable handoffs (see{" "}
+              <a
+                href={THARIQ_HTML_EFFECTIVENESS_HREF}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
+              >
+                {THARIQ_HTML_ARTICLE_TITLE}
+              </a>
+              ). No upload step, no headless browser farm — open devtools and watch every byte.
             </p>
           </div>
 
@@ -254,8 +301,19 @@ export default function HomePage() {
               <div className="body">
                 <h3>Author the skill, not a summary</h3>
                 <p>
-                  A tuned system prompt asks your model to produce SKILL.md, not a recap. The output
-                  has the right shape, in the right tone, with code that actually compiles.
+                  A tuned system prompt asks your model for structured output—not a recap. In{" "}
+                  <span className="mono" style={{ fontSize: 12 }}>Skill.md</span> mode that&apos;s YAML
+                  + sections; in <span className="mono" style={{ fontSize: 12 }}>.html</span> mode it&apos;s
+                  a navigable page you can ship to people or LLMs, following the same spirit as{" "}
+                  <a
+                    href={THARIQ_HTML_EFFECTIVENESS_HREF}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
+                  >
+                    {THARIQ_HTML_ARTICLE_TITLE}
+                  </a>
+                  .
                 </p>
               </div>
               <div className="cell-stage" style={{ height: 130 }}>
@@ -282,8 +340,12 @@ export default function HomePage() {
             <div className="cell span-2">
               <div className="num"><b>04</b> &nbsp; SAVE</div>
               <div className="body">
-                <h3>Drop in <span className="serif">skills/</span></h3>
-                <p>Plain markdown. Loads in any agent that reads .md skills.</p>
+                <h3>Save or share</h3>
+                <p>
+                  Download <span className="mono" style={{ fontSize: 12 }}>Skill.md</span> into{" "}
+                  <span className="serif">skills/</span>, or save <span className="mono" style={{ fontSize: 12 }}>.html</span>{" "}
+                  for browsers and LLM context—your choice in the converter.
+                </p>
               </div>
               <div className="cell-stage">
                 <div className="vz-save">
@@ -308,7 +370,18 @@ export default function HomePage() {
               A Claude Agent Skill is a directory anchored by a{" "}
               <span className="mono" style={{ color: "var(--accent)" }}>Skill.md</span> file. The{" "}
               <em className="serif">description</em> is what the router reads. The{" "}
-              <em className="serif">body</em> is what Claude reads when it loads you.
+              <em className="serif">body</em> is what Claude reads when it loads you. Skillify can also
+              emit a standalone <span className="mono" style={{ color: "var(--accent)" }}>.html</span>{" "}
+              artifact for teams—see{" "}
+              <a
+                href={THARIQ_HTML_EFFECTIVENESS_HREF}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
+              >
+                {THARIQ_HTML_ARTICLE_TITLE}
+              </a>{" "}
+              for why that format wins for human (and pasted) review.
             </p>
           </div>
 
@@ -382,8 +455,8 @@ export default function HomePage() {
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                   <span>
-                    <b>Output is yours.</b> The skill file is plain markdown. MIT-licensed. No
-                    watermarks, no required attribution.
+                    <b>Output is yours.</b> Markdown skills and HTML artifacts are plain files you
+                    own. MIT-licensed. No watermarks, no required attribution.
                   </span>
                 </li>
                 <li>
@@ -421,9 +494,10 @@ export default function HomePage() {
                     <line x1="12" y1="17" x2="12.01" y2="17" />
                   </svg>
                   <span>
-                    <b>Generated skills are untrusted until reviewed.</b> A malicious source page
-                    may attempt to influence the generated Skill.md. Skillify scans output for
-                    suspicious content, but always review before running a skill in an agent.
+                    <b>Generated output is untrusted until reviewed.</b> A malicious source page
+                    may attempt to influence the generated Skill.md or HTML. Skillify scans output for
+                    suspicious content, but always review before running a skill in an agent or sharing
+                    HTML with others.
                   </span>
                 </li>
               </ul>
@@ -553,6 +627,29 @@ export default function HomePage() {
                 find the <code>SYS_PROMPT</code> constant, change it.
               </div>
             </details>
+            <details>
+              <summary>
+                <span className="num">08</span>
+                <span>Why both Markdown and HTML?</span>
+                <span className="chev">+</span>
+              </summary>
+              <div>
+                <span className="mono" style={{ fontSize: 13 }}>Skill.md</span> is what Claude Code
+                packages as an on-demand agent skill—YAML frontmatter, patterns, pitfalls. A single{" "}
+                <span className="mono" style={{ fontSize: 13 }}>.html</span> file is better when the
+                audience is humans skimming in a browser, or when you want to paste rich context into
+                another LLM chat. Thariq Shihipar (Claude Code) makes the case with runnable examples in{" "}
+                <a
+                  href={THARIQ_HTML_EFFECTIVENESS_HREF}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
+                >
+                  {THARIQ_HTML_ARTICLE_TITLE}
+                </a>
+                — Skillify implements both so you pick the right surface.
+              </div>
+            </details>
           </div>
 
           {/* big cta */}
@@ -564,7 +661,7 @@ export default function HomePage() {
               Distill your<br />first skill in <em className="serif">~12s.</em>
             </h2>
             <p className="lede" style={{ textAlign: "center" }}>
-              Bring a URL, bring a key. Walk away with a skill.
+              Bring a URL, bring a key. Walk away with a Skill.md or a handoff-ready HTML file.
             </p>
             <div className="row">
               <a className="btn-primary" href="#tool">

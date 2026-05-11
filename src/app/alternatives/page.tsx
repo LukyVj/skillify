@@ -1,16 +1,20 @@
 import type { Metadata } from "next";
+import {
+  THARIQ_HTML_ARTICLE_TITLE,
+  THARIQ_HTML_EFFECTIVENESS_HREF,
+} from "@/lib/thariq-html";
 
 export const metadata: Metadata = {
   title: "Claude Agent Skill Generators: Alternatives Compared",
   description:
-    "Compare ways to create Claude Agent Skill.md files: Skillify, writing by hand, using ChatGPT, or custom scripts. Honest comparison with tradeoffs.",
+    "Compare Skill.md generators: Skillify (Markdown + optional HTML handoff per Thariq Shihipar), manual writing, ChatGPT, or scripts. Honest tradeoffs.",
   alternates: { canonical: "https://getskillify.dev/alternatives" },
   openGraph: {
     type: "article",
     url: "https://getskillify.dev/alternatives",
     title: "Claude Agent Skill Generators: Alternatives Compared",
     description:
-      "Compare ways to create Claude Agent Skill.md files: Skillify, writing by hand, using ChatGPT, or custom scripts.",
+      "Skillify vs manual vs chat vs scripts—including Skill.md and optional HTML (Thariq Shihipar handoff pattern).",
   },
 };
 
@@ -18,7 +22,8 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Article",
   headline: "Claude Agent Skill Generators: Alternatives Compared",
-  description: "An honest comparison of the main ways to create Claude Agent Skill.md files.",
+  description:
+    "An honest comparison of ways to create Claude skills—including Skillify's Markdown + HTML outputs.",
   url: "https://getskillify.dev/alternatives",
   author: { "@type": "Organization", name: "Skillify" },
   publisher: { "@type": "Organization", name: "Skillify", url: "https://getskillify.dev" },
@@ -39,7 +44,8 @@ export default function AlternativesPage() {
               <div className="eyebrow">Comparison · BOFU</div>
               <h1>Ways to create <em>Claude skills</em></h1>
               <p style={{ color: "var(--ink-2)", fontSize: 17, lineHeight: 1.6, maxWidth: "60ch", margin: "0 0 24px" }}>
-                An honest look at every approach to generating Skill.md files — with real tradeoffs, not marketing copy.
+                An honest look at every approach to generating Skill.md (and optional HTML handoff) — with real tradeoffs,
+                not marketing copy.
               </p>
               <div className="article-meta">
                 <span>6 min read</span><span>·</span><span>Updated May 2026</span>
@@ -61,12 +67,23 @@ export default function AlternativesPage() {
                     <span className="badge badge-accent">This tool</span>
                   </div>
                   <p className="option-desc">
-                    Paste a URL. Skillify extracts it via Jina, sends it to your chosen LLM, and returns a structured
-                    Skill.md — frontmatter, patterns, pitfalls, and reference sections included.
+                    Paste a URL. Skillify extracts it via Jina, sends it to your chosen LLM, and returns a structured{" "}
+                    <span className="mono" style={{ fontSize: 12 }}>Skill.md</span>—or a single{" "}
+                    <span className="mono" style={{ fontSize: 12 }}>.html</span> artifact for teammates and LLM
+                    handoff, in the spirit of{" "}
+                    <a
+                      href={THARIQ_HTML_EFFECTIVENESS_HREF}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
+                    >
+                      {THARIQ_HTML_ARTICLE_TITLE}
+                    </a>{" "}
+                    (Thariq Shihipar, Claude Code).
                   </p>
                   <ul className="pro-con">
-                    <li className="pro">30 seconds from URL to Skill.md</li>
-                    <li className="pro">Correctly structured output every time</li>
+                    <li className="pro">30 seconds from URL to Skill.md or HTML</li>
+                    <li className="pro">Correctly structured Markdown for Claude skills</li>
                     <li className="pro">Browser-only, no account, no data retention</li>
                     <li className="pro">Works with Anthropic, OpenAI, or Google APIs</li>
                     <li className="con">Requires a source URL with substantive content</li>
@@ -151,6 +168,13 @@ export default function AlternativesPage() {
                     <td className="partial">~</td>
                   </tr>
                   <tr>
+                    <td>Optional HTML artifact (browser / LLM handoff)</td>
+                    <td className="tick">✓</td>
+                    <td className="partial">~</td>
+                    <td className="partial">~</td>
+                    <td className="partial">~</td>
+                  </tr>
+                  <tr>
                     <td>URL fetching built in</td>
                     <td className="tick">✓</td>
                     <td className="cross">✗</td>
@@ -202,6 +226,19 @@ export default function AlternativesPage() {
                 <li>You found a great article, doc page, or playbook and want to turn it into a skill fast</li>
                 <li>You&apos;re building a library of skills from existing technical content</li>
                 <li>You want a structured draft to customise, not start from a blank page</li>
+                <li>
+                  You need a shareable <span className="mono" style={{ fontSize: 13 }}>.html</span> for humans or
+                  pasted LLM context—not only Markdown (
+                  <a
+                    href={THARIQ_HTML_EFFECTIVENESS_HREF}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
+                  >
+                    {THARIQ_HTML_ARTICLE_TITLE}
+                  </a>
+                  )
+                </li>
               </ul>
 
               <h3>Write by hand when</h3>
@@ -226,7 +263,10 @@ export default function AlternativesPage() {
 
               <div className="cta-block">
                 <h2>Try Skillify</h2>
-                <p>Paste any technical URL and get a production-ready Skill.md in 30 seconds. No account, no backend.</p>
+                <p>
+                  Paste any technical URL and get a production-ready Skill.md—or an HTML artifact—in 30 seconds. No
+                  account, no backend.
+                </p>
                 <a className="btn-primary" href="/#tool">Open the converter →</a>
               </div>
             </div>

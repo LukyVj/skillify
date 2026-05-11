@@ -1,16 +1,20 @@
 import type { Metadata } from "next";
+import {
+  THARIQ_HTML_ARTICLE_TITLE,
+  THARIQ_HTML_EFFECTIVENESS_HREF,
+} from "@/lib/thariq-html";
 
 export const metadata: Metadata = {
   title: "Skillify vs Writing Claude Skills Manually",
   description:
-    "Should you write Claude Agent Skill.md files by hand or generate them with Skillify? An honest comparison of quality, speed, and output.",
+    "Generate Skill.md from a URL vs writing by hand—and when to export HTML for handoff (Thariq Shihipar). Honest comparison.",
   alternates: { canonical: "https://getskillify.dev/vs-manual" },
   openGraph: {
     type: "article",
     url: "https://getskillify.dev/vs-manual",
     title: "Skillify vs Writing Claude Skills Manually",
     description:
-      "Should you write Claude Agent Skill.md files by hand or generate them with Skillify? An honest comparison.",
+      "Skillify vs manual Skill.md writing, plus when to export HTML for handoff (Thariq Shihipar). Honest comparison.",
   },
 };
 
@@ -18,7 +22,8 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Article",
   headline: "Skillify vs Writing Claude Skills Manually",
-  description: "An honest comparison of generating Skill.md files with Skillify versus writing them by hand.",
+  description:
+    "Honest comparison: Skillify from URL vs hand-written skills, and Markdown vs HTML artifact output.",
   url: "https://getskillify.dev/vs-manual",
   author: { "@type": "Organization", name: "Skillify" },
   publisher: { "@type": "Organization", name: "Skillify", url: "https://getskillify.dev" },
@@ -60,7 +65,18 @@ export default function VsManualPage() {
                   <h3>Starts from a source document</h3>
                   <p>
                     You have a URL: a playbook, a style guide, an API reference, a technical article. Skillify fetches
-                    it, extracts the structure, and outputs a formatted Skill.md.
+                    it, extracts the structure, and outputs a formatted Skill.md—or a standalone{" "}
+                    <span className="mono" style={{ fontSize: 13 }}>.html</span> for people and LLM context, following
+                    the same rationale as{" "}
+                    <a
+                      href={THARIQ_HTML_EFFECTIVENESS_HREF}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
+                    >
+                      {THARIQ_HTML_ARTICLE_TITLE}
+                    </a>{" "}
+                    (Thariq Shihipar).
                   </p>
                   <p>The knowledge comes from the source. Your job is to review and refine.</p>
                   <ul>
@@ -164,15 +180,20 @@ export default function VsManualPage() {
                 <h3>Bottom line</h3>
                 <p>
                   Use Skillify when knowledge exists in a document somewhere. Write by hand when it only exists in your
-                  team&apos;s heads — or use Skillify to generate the structure and fill in the gaps manually. The worst
-                  outcome is spending two hours writing a skill from scratch when a 30-second generate + 10-minute
-                  review would have produced a better result.
+                  team&apos;s heads — or use Skillify to generate the structure and fill in the gaps manually. Pick{" "}
+                  <span className="mono" style={{ fontSize: 13 }}>HTML artifact</span> in the tool when the consumer is
+                  a teammate or a pasted chat log, not only Claude&apos;s skill loader. The worst outcome is spending two
+                  hours writing a skill from scratch when a 30-second generate + 10-minute review would have produced a
+                  better result.
                 </p>
               </div>
 
               <div className="cta-block">
                 <h2>Generate your first skill</h2>
-                <p>Paste any technical URL. Get a structured Skill.md in 30 seconds. Review and customise from there.</p>
+                <p>
+                  Paste any technical URL. Get a structured Skill.md—or HTML for handoff—in 30 seconds. Review and
+                  customise from there.
+                </p>
                 <a className="btn-primary" href="/#tool">Open the converter →</a>
               </div>
             </div>

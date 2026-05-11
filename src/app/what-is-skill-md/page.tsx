@@ -1,16 +1,20 @@
 import type { Metadata } from "next";
+import {
+  THARIQ_HTML_ARTICLE_TITLE,
+  THARIQ_HTML_EFFECTIVENESS_HREF,
+} from "@/lib/thariq-html";
 
 export const metadata: Metadata = {
   title: "What is Skill.md? Claude Agent Skills Explained",
   description:
-    "Skill.md is the file format Claude Code uses to give agents reusable, domain-specific expertise. Learn what it contains, how it works, and how to create one.",
+    "Skill.md is the Claude Code skill format. Skillify can also emit HTML artifacts for teams—see Thariq Shihipar's The unreasonable effectiveness of HTML.",
   alternates: { canonical: "https://getskillify.dev/what-is-skill-md" },
   openGraph: {
     type: "article",
     url: "https://getskillify.dev/what-is-skill-md",
     title: "What is Skill.md? Claude Agent Skills Explained",
     description:
-      "Skill.md is the file format Claude Code uses to give agents reusable, domain-specific expertise. Learn what it contains, how it works, and how to create one.",
+      "Skill.md for Claude Code agents, plus optional HTML artifacts for handoff (Thariq Shihipar). Structure, router, and how to create one.",
   },
 };
 
@@ -19,7 +23,8 @@ const jsonLd = [
     "@context": "https://schema.org",
     "@type": "Article",
     headline: "What is Skill.md? Claude Agent Skills Explained",
-    description: "Skill.md is the file format Claude Code uses to give agents reusable, domain-specific expertise.",
+    description:
+      "Skill.md for Claude Code; optional HTML artifacts for humans and LLMs (Thariq Shihipar, The unreasonable effectiveness of HTML).",
     url: "https://getskillify.dev/what-is-skill-md",
     author: { "@type": "Organization", name: "Skillify" },
     publisher: { "@type": "Organization", name: "Skillify", url: "https://getskillify.dev" },
@@ -248,6 +253,26 @@ export default function WhatIsSkillMdPage() {
                 and applies the BOFU-first framework — no prompting required.
               </p>
 
+              <h2>Markdown for agents, HTML for handoff</h2>
+              <p>
+                <span className="mono" style={{ color: "var(--accent)", fontSize: 13 }}>Skill.md</span>{" "}
+                is what Claude Code loads as a packaged skill. Sometimes the audience is a teammate in
+                a browser—or you want to paste rich context into another LLM—so a single self-contained{" "}
+                <span className="mono" style={{ fontSize: 13, color: "var(--ink)" }}>.html</span>{" "}
+                file is clearer than a wall of markdown. Thariq Shihipar (Claude Code) collected runnable
+                examples of that idea in{" "}
+                <a
+                  href={THARIQ_HTML_EFFECTIVENESS_HREF}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
+                >
+                  {THARIQ_HTML_ARTICLE_TITLE}
+                </a>
+                ; Skillify lets you choose <strong>Skill.md</strong> or <strong>HTML artifact</strong> in the
+                converter on the homepage.
+              </p>
+
               <h2>How to create a Skill.md</h2>
               <p>You have two options:</p>
               <ol>
@@ -264,7 +289,7 @@ export default function WhatIsSkillMdPage() {
 
               <div className="cta-block">
                 <h2>Try the generator</h2>
-                <p>Paste a URL. Get a production-ready Skill.md in under a minute.</p>
+                <p>Paste a URL. Get a production-ready Skill.md—or an HTML handoff file—in under a minute.</p>
                 <a className="btn-primary" href="/#tool">Open the converter →</a>
               </div>
             </div>

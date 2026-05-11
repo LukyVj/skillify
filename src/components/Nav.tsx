@@ -56,7 +56,7 @@ export function Nav() {
         <Link className="brand" href="/">
           <BrandMark />
           <span>Skillify</span>
-          <span className="brand-tag">v0.1 · alpha</span>
+          <span className="brand-tag">v0.2 · alpha</span>
         </Link>
         <button
           className="nav-toggle"

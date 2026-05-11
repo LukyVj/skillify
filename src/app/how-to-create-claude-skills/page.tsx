@@ -1,15 +1,20 @@
 import type { Metadata } from "next";
+import {
+  THARIQ_HTML_ARTICLE_TITLE,
+  THARIQ_HTML_EFFECTIVENESS_HREF,
+} from "@/lib/thariq-html";
 
 export const metadata: Metadata = {
   title: "How to Create Claude Agent Skills (Skill.md)",
   description:
-    "Step-by-step guide to writing Claude Agent Skill.md files that actually work. Covers structure, description writing, pattern extraction, and testing your skill.",
+    "Write Skill.md by hand or generate from a URL—including optional HTML artifacts (Thariq Shihipar). Structure, descriptions, patterns, testing.",
   alternates: { canonical: "https://getskillify.dev/how-to-create-claude-skills" },
   openGraph: {
     type: "article",
     url: "https://getskillify.dev/how-to-create-claude-skills",
     title: "How to Create Claude Agent Skills (Skill.md)",
-    description: "Step-by-step guide to writing Claude Agent Skill.md files that actually work.",
+    description:
+      "Write Skill.md by hand or generate from a URL—Markdown for Claude, HTML for handoff (Thariq Shihipar).",
   },
 };
 
@@ -17,7 +22,8 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "HowTo",
   name: "How to Create a Claude Agent Skill.md File",
-  description: "A step-by-step guide to creating Skill.md files for Claude Code agents.",
+  description:
+    "Create Claude Code Skill.md files by hand or from a URL—including optional HTML handoff artifacts.",
   url: "https://getskillify.dev/how-to-create-claude-skills",
   step: [
     {
@@ -90,6 +96,23 @@ export default function HowToCreateClaudeSkillsPage() {
                 If the skill captures knowledge that&apos;s relevant beyond one codebase (e.g. &quot;how to write good
                 SQL migrations&quot;), put it at user level. If it encodes knowledge specific to your product or stack
                 (e.g. &quot;our API versioning conventions&quot;), put it in the project.
+              </p>
+              <p>
+                <strong>Shortcut:</strong> Skillify can draft a skill from a URL in the browser—output as{" "}
+                <span className="mono" style={{ fontSize: 13, color: "var(--accent)" }}>Skill.md</span>{" "}
+                for Claude Code, or as a single{" "}
+                <span className="mono" style={{ fontSize: 13, color: "var(--accent)" }}>.html</span>{" "}
+                for humans and LLM handoff. Thariq Shihipar&apos;s companion demos explain why HTML wins
+                that second job:{" "}
+                <a
+                  href={THARIQ_HTML_EFFECTIVENESS_HREF}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
+                >
+                  {THARIQ_HTML_ARTICLE_TITLE}
+                </a>
+                .
               </p>
 
               <h2>The five steps</h2>
@@ -267,8 +290,9 @@ export default function HowToCreateClaudeSkillsPage() {
               </p>
               <p>
                 Paste the URL into Skillify and it extracts the key patterns, pitfalls, and reference material
-                automatically — producing a correctly-structured Skill.md in about 30 seconds. You&apos;ll still want
-                to review and customise the output, but it gives you a complete draft to edit rather than a blank file.
+                automatically — producing a correctly-structured Skill.md (or a single .html handoff file) in about 30
+                seconds. You&apos;ll still want to review and customise the output, but it gives you a complete draft to
+                edit rather than a blank file.
               </p>
 
               <div className="callout">
@@ -281,7 +305,7 @@ export default function HowToCreateClaudeSkillsPage() {
 
               <div className="cta-block">
                 <h2>Generate a skill from any URL</h2>
-                <p>Paste a link to a technical article and get a ready-to-use Skill.md in 30 seconds.</p>
+                <p>Paste a link to a technical article and get a ready-to-use Skill.md or HTML artifact in 30 seconds.</p>
                 <a className="btn-primary" href="/#tool">Open the converter →</a>
               </div>
             </div>
