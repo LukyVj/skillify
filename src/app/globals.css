@@ -1418,6 +1418,39 @@ main p {
   color: var(--ink-4);
 }
 
+/* HTML artifact preset controls (inside extended-block, not .field) */
+.html-artifact-options select,
+.html-artifact-options textarea {
+  width: 100%;
+  margin-top: 6px;
+  box-sizing: border-box;
+  background: #00000028;
+  border: 1px solid var(--line-2);
+  border-radius: 9px;
+  color: var(--ink);
+  padding: 12px 14px;
+  font-size: 13px;
+  outline: none;
+  transition:
+    border-color 0.15s,
+    background 0.15s,
+    box-shadow 0.15s;
+}
+.html-artifact-options textarea {
+  font-family: "JetBrains Mono", monospace;
+  min-height: 72px;
+  line-height: 1.45;
+}
+.html-artifact-options select:focus,
+.html-artifact-options textarea:focus {
+  border-color: color-mix(in oklab, var(--accent) 70%, transparent);
+  background: #00000038;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 18%, transparent);
+}
+.html-artifact-options textarea::placeholder {
+  color: var(--ink-4);
+}
+
 .extended-block {
   margin-top: 4px;
   display: flex;

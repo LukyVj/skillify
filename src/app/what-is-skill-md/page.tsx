@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
 import {
-  THARIQ_HTML_ARTICLE_TITLE,
+  THARIQ_HTML_COMPANION_LABEL,
   THARIQ_HTML_EFFECTIVENESS_HREF,
 } from "@/lib/thariq-html";
 
 export const metadata: Metadata = {
   title: "What is Skill.md? Claude Agent Skills Explained",
   description:
-    "Skill.md is the Claude Code skill format. Skillify can also emit HTML artifacts for teams—see Thariq Shihipar's The unreasonable effectiveness of HTML.",
+    "Skill.md is the Claude Code skill format. Skillify can also emit HTML artifacts for teams and pasted LLM context.",
   alternates: { canonical: "https://getskillify.dev/what-is-skill-md" },
   openGraph: {
     type: "article",
     url: "https://getskillify.dev/what-is-skill-md",
     title: "What is Skill.md? Claude Agent Skills Explained",
     description:
-      "Skill.md for Claude Code agents, plus optional HTML artifacts for handoff (Thariq Shihipar). Structure, router, and how to create one.",
+      "Skill.md for Claude Code agents, plus optional HTML artifacts for handoff. Structure, router, and how to create one.",
   },
 };
 
@@ -24,7 +24,7 @@ const jsonLd = [
     "@type": "Article",
     headline: "What is Skill.md? Claude Agent Skills Explained",
     description:
-      "Skill.md for Claude Code; optional HTML artifacts for humans and LLMs (Thariq Shihipar, The unreasonable effectiveness of HTML).",
+      "Skill.md for Claude Code; optional HTML artifacts for humans and LLMs.",
     url: "https://getskillify.dev/what-is-skill-md",
     author: { "@type": "Organization", name: "Skillify" },
     publisher: { "@type": "Organization", name: "Skillify", url: "https://getskillify.dev" },
@@ -259,17 +259,17 @@ export default function WhatIsSkillMdPage() {
                 is what Claude Code loads as a packaged skill. Sometimes the audience is a teammate in
                 a browser—or you want to paste rich context into another LLM—so a single self-contained{" "}
                 <span className="mono" style={{ fontSize: 13, color: "var(--ink)" }}>.html</span>{" "}
-                file is clearer than a wall of markdown. Thariq Shihipar (Claude Code) collected runnable
-                examples of that idea in{" "}
+                file is clearer than a wall of markdown. See{" "}
                 <a
                   href={THARIQ_HTML_EFFECTIVENESS_HREF}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
                 >
-                  {THARIQ_HTML_ARTICLE_TITLE}
+                  {THARIQ_HTML_COMPANION_LABEL}
                 </a>
-                ; Skillify lets you choose <strong>Skill.md</strong> or <strong>HTML artifact</strong> in the
+                {" "}
+                for examples; Skillify lets you choose <strong>Skill.md</strong> or <strong>HTML artifact</strong> in the
                 converter on the homepage.
               </p>
 

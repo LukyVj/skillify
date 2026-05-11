@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import SkillifyTool from "@/components/SkillifyTool";
 import AnatomySection from "@/components/AnatomySection";
 import {
-  THARIQ_HTML_ARTICLE_TITLE,
+  THARIQ_HTML_COMPANION_LABEL,
   THARIQ_HTML_EFFECTIVENESS_HREF,
 } from "@/lib/thariq-html";
 
@@ -16,7 +16,7 @@ const jsonLd = {
   name: "Skillify",
   url: "https://getskillify.dev",
   description:
-    "Turn technical URLs into Claude Agent Skill.md files or downloadable HTML artifacts—rich handoffs in the spirit of Thariq Shihipar's The unreasonable effectiveness of HTML. Free, browser-only, Anthropic, OpenAI, and Google APIs.",
+    "Turn technical URLs into Claude Agent Skill.md files or downloadable HTML artifacts. Free, browser-only, Anthropic, OpenAI, and Google APIs.",
   applicationCategory: "DeveloperApplication",
   operatingSystem: "Any",
   offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
@@ -77,14 +77,14 @@ export default function HomePage() {
                   .html
                 </span>{" "}
                 you can hand to teammates or drop into another LLM. Markdown stays the package format
-                for agent skills; HTML follows the handoff pattern Thariq Shihipar lays out in{" "}
+                for agent skills; for a rich handoff page in the browser, see{" "}
                 <a
                   href={THARIQ_HTML_EFFECTIVENESS_HREF}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
                 >
-                  {THARIQ_HTML_ARTICLE_TITLE}
+                  {THARIQ_HTML_COMPANION_LABEL}
                 </a>
                 . Bring your own key. We never see it.
               </p>
@@ -222,16 +222,8 @@ export default function HomePage() {
               <span className="mono" style={{ fontSize: 13, color: "var(--accent)" }}>Skill.md</span>{" "}
               or a self-contained{" "}
               <span className="mono" style={{ fontSize: 13, color: "var(--accent)" }}>.html</span>{" "}
-              for humans and LLM handoff—same idea as the demos in{" "}
-              <a
-                href={THARIQ_HTML_EFFECTIVENESS_HREF}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
-              >
-                {THARIQ_HTML_ARTICLE_TITLE}
-              </a>
-              . Your API key never leaves this tab — there is no Skillify server for it to leave to.
+              for humans and LLM handoff beyond plain Markdown. Your API key never leaves this tab — there is no
+              Skillify server for it to leave to.
             </p>
           </div>
 
@@ -247,16 +239,8 @@ export default function HomePage() {
             </div>
             <p style={{ maxWidth: "56ch" }}>
               Each step runs locally. You end with either Markdown for agent packages or HTML for
-              shareable, skimmable handoffs (see{" "}
-              <a
-                href={THARIQ_HTML_EFFECTIVENESS_HREF}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
-              >
-                {THARIQ_HTML_ARTICLE_TITLE}
-              </a>
-              ). No upload step, no headless browser farm — open devtools and watch every byte.
+              shareable, skimmable handoffs. No upload step, no headless browser farm — open devtools and watch every
+              byte.
             </p>
           </div>
 
@@ -304,16 +288,7 @@ export default function HomePage() {
                   A tuned system prompt asks your model for structured output—not a recap. In{" "}
                   <span className="mono" style={{ fontSize: 12 }}>Skill.md</span> mode that&apos;s YAML
                   + sections; in <span className="mono" style={{ fontSize: 12 }}>.html</span> mode it&apos;s
-                  a navigable page you can ship to people or LLMs, following the same spirit as{" "}
-                  <a
-                    href={THARIQ_HTML_EFFECTIVENESS_HREF}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
-                  >
-                    {THARIQ_HTML_ARTICLE_TITLE}
-                  </a>
-                  .
+                  a navigable page you can ship to people or LLMs.
                 </p>
               </div>
               <div className="cell-stage" style={{ height: 130 }}>
@@ -372,16 +347,7 @@ export default function HomePage() {
               <em className="serif">description</em> is what the router reads. The{" "}
               <em className="serif">body</em> is what Claude reads when it loads you. Skillify can also
               emit a standalone <span className="mono" style={{ color: "var(--accent)" }}>.html</span>{" "}
-              artifact for teams—see{" "}
-              <a
-                href={THARIQ_HTML_EFFECTIVENESS_HREF}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
-              >
-                {THARIQ_HTML_ARTICLE_TITLE}
-              </a>{" "}
-              for why that format wins for human (and pasted) review.
+              artifact for teams when a browser-first page reads better than a long Markdown file.
             </p>
           </div>
 
@@ -638,16 +604,7 @@ export default function HomePage() {
                 packages as an on-demand agent skill—YAML frontmatter, patterns, pitfalls. A single{" "}
                 <span className="mono" style={{ fontSize: 13 }}>.html</span> file is better when the
                 audience is humans skimming in a browser, or when you want to paste rich context into
-                another LLM chat. Thariq Shihipar (Claude Code) makes the case with runnable examples in{" "}
-                <a
-                  href={THARIQ_HTML_EFFECTIVENESS_HREF}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
-                >
-                  {THARIQ_HTML_ARTICLE_TITLE}
-                </a>
-                — Skillify implements both so you pick the right surface.
+                another LLM chat. Skillify implements both so you pick the right surface.
               </div>
             </details>
           </div>

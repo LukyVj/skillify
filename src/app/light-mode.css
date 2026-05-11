@@ -208,17 +208,22 @@ html[data-theme="light"] .source-review-add-input {
 /* form fields */
 html[data-theme="light"] .field input,
 html[data-theme="light"] .field select,
+html[data-theme="light"] .html-artifact-options select,
+html[data-theme="light"] .html-artifact-options textarea,
 html[data-theme="light"] .segmented {
   background: #ffffff;
   color: var(--ink);
 }
 
-html[data-theme="light"] .field input::placeholder {
+html[data-theme="light"] .field input::placeholder,
+html[data-theme="light"] .html-artifact-options textarea::placeholder {
   color: var(--ink-4);
 }
 
 html[data-theme="light"] .field input:focus,
-html[data-theme="light"] .field select:focus {
+html[data-theme="light"] .field select:focus,
+html[data-theme="light"] .html-artifact-options select:focus,
+html[data-theme="light"] .html-artifact-options textarea:focus {
   background: #ffffff;
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 18%, transparent);
 }

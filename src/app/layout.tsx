@@ -13,10 +13,10 @@ export const metadata: Metadata = {
   title: {
     template: "%s — Skillify",
     default:
-      "Skillify — Skill.md & HTML artifacts from URLs | Claude Agent skills (Thariq-style handoff)",
+      "Skillify — Skill.md & HTML artifacts from URLs | Claude Agent skills",
   },
   description:
-    "Turn a technical URL into a Claude Agent Skill.md or a self-contained HTML file for teams and LLMs—in the spirit of Thariq Shihipar's 'The unreasonable effectiveness of HTML'. Browser-only, BYO Anthropic, OpenAI, or Google key. No account.",
+    "Turn a technical URL into a Claude Agent Skill.md or a self-contained HTML file for teams and LLMs. Browser-only: BYO Anthropic, OpenAI, or Google key. No account.",
   openGraph: {
     siteName: "Skillify",
     images: [

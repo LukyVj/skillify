@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
 import {
-  THARIQ_HTML_ARTICLE_TITLE,
+  THARIQ_HTML_COMPANION_LABEL,
   THARIQ_HTML_EFFECTIVENESS_HREF,
 } from "@/lib/thariq-html";
 
 export const metadata: Metadata = {
   title: "Claude Agent Skill Generators: Alternatives Compared",
   description:
-    "Compare Skill.md generators: Skillify (Markdown + optional HTML handoff per Thariq Shihipar), manual writing, ChatGPT, or scripts. Honest tradeoffs.",
+    "Compare Skill.md generators: Skillify (Markdown + optional HTML handoff), manual writing, ChatGPT, or scripts. Honest tradeoffs.",
   alternates: { canonical: "https://getskillify.dev/alternatives" },
   openGraph: {
     type: "article",
     url: "https://getskillify.dev/alternatives",
     title: "Claude Agent Skill Generators: Alternatives Compared",
     description:
-      "Skillify vs manual vs chat vs scripts—including Skill.md and optional HTML (Thariq Shihipar handoff pattern).",
+      "Skillify vs manual vs chat vs scripts—including Skill.md and optional HTML handoff files.",
   },
 };
 
@@ -70,16 +70,16 @@ export default function AlternativesPage() {
                     Paste a URL. Skillify extracts it via Jina, sends it to your chosen LLM, and returns a structured{" "}
                     <span className="mono" style={{ fontSize: 12 }}>Skill.md</span>—or a single{" "}
                     <span className="mono" style={{ fontSize: 12 }}>.html</span> artifact for teammates and LLM
-                    handoff, in the spirit of{" "}
+                    handoff—see{" "}
                     <a
                       href={THARIQ_HTML_EFFECTIVENESS_HREF}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
                     >
-                      {THARIQ_HTML_ARTICLE_TITLE}
-                    </a>{" "}
-                    (Thariq Shihipar, Claude Code).
+                      {THARIQ_HTML_COMPANION_LABEL}
+                    </a>
+                    .
                   </p>
                   <ul className="pro-con">
                     <li className="pro">30 seconds from URL to Skill.md or HTML</li>
@@ -228,16 +228,7 @@ export default function AlternativesPage() {
                 <li>You want a structured draft to customise, not start from a blank page</li>
                 <li>
                   You need a shareable <span className="mono" style={{ fontSize: 13 }}>.html</span> for humans or
-                  pasted LLM context—not only Markdown (
-                  <a
-                    href={THARIQ_HTML_EFFECTIVENESS_HREF}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
-                  >
-                    {THARIQ_HTML_ARTICLE_TITLE}
-                  </a>
-                  )
+                  pasted LLM context—not only Markdown
                 </li>
               </ul>
 

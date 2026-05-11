@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
 import {
-  THARIQ_HTML_ARTICLE_TITLE,
+  THARIQ_HTML_COMPANION_LABEL,
   THARIQ_HTML_EFFECTIVENESS_HREF,
 } from "@/lib/thariq-html";
 
 export const metadata: Metadata = {
   title: "How to Create Claude Agent Skills (Skill.md)",
   description:
-    "Write Skill.md by hand or generate from a URL—including optional HTML artifacts (Thariq Shihipar). Structure, descriptions, patterns, testing.",
+    "Write Skill.md by hand or generate from a URL—including optional HTML artifacts. Structure, descriptions, patterns, testing.",
   alternates: { canonical: "https://getskillify.dev/how-to-create-claude-skills" },
   openGraph: {
     type: "article",
     url: "https://getskillify.dev/how-to-create-claude-skills",
     title: "How to Create Claude Agent Skills (Skill.md)",
     description:
-      "Write Skill.md by hand or generate from a URL—Markdown for Claude, HTML for handoff (Thariq Shihipar).",
+      "Write Skill.md by hand or generate from a URL—Markdown for Claude, HTML for handoff.",
   },
 };
 
@@ -102,15 +102,14 @@ export default function HowToCreateClaudeSkillsPage() {
                 <span className="mono" style={{ fontSize: 13, color: "var(--accent)" }}>Skill.md</span>{" "}
                 for Claude Code, or as a single{" "}
                 <span className="mono" style={{ fontSize: 13, color: "var(--accent)" }}>.html</span>{" "}
-                for humans and LLM handoff. Thariq Shihipar&apos;s companion demos explain why HTML wins
-                that second job:{" "}
+                for humans and LLM handoff—see{" "}
                 <a
                   href={THARIQ_HTML_EFFECTIVENESS_HREF}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
                 >
-                  {THARIQ_HTML_ARTICLE_TITLE}
+                  {THARIQ_HTML_COMPANION_LABEL}
                 </a>
                 .
               </p>

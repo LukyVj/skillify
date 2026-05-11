@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
 import {
-  THARIQ_HTML_ARTICLE_TITLE,
+  THARIQ_HTML_COMPANION_LABEL,
   THARIQ_HTML_EFFECTIVENESS_HREF,
 } from "@/lib/thariq-html";
 
 export const metadata: Metadata = {
   title: "Skillify vs Writing Claude Skills Manually",
   description:
-    "Generate Skill.md from a URL vs writing by hand—and when to export HTML for handoff (Thariq Shihipar). Honest comparison.",
+    "Generate Skill.md from a URL vs writing by hand—and when to export HTML for handoff. Honest comparison.",
   alternates: { canonical: "https://getskillify.dev/vs-manual" },
   openGraph: {
     type: "article",
     url: "https://getskillify.dev/vs-manual",
     title: "Skillify vs Writing Claude Skills Manually",
     description:
-      "Skillify vs manual Skill.md writing, plus when to export HTML for handoff (Thariq Shihipar). Honest comparison.",
+      "Skillify vs manual Skill.md writing, plus when to export HTML for handoff. Honest comparison.",
   },
 };
 
@@ -67,16 +67,16 @@ export default function VsManualPage() {
                     You have a URL: a playbook, a style guide, an API reference, a technical article. Skillify fetches
                     it, extracts the structure, and outputs a formatted Skill.md—or a standalone{" "}
                     <span className="mono" style={{ fontSize: 13 }}>.html</span> for people and LLM context, following
-                    the same rationale as{" "}
+                    the same rationale as in{" "}
                     <a
                       href={THARIQ_HTML_EFFECTIVENESS_HREF}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ color: "var(--accent)", textDecoration: "underline", textUnderlineOffset: 3 }}
                     >
-                      {THARIQ_HTML_ARTICLE_TITLE}
-                    </a>{" "}
-                    (Thariq Shihipar).
+                      {THARIQ_HTML_COMPANION_LABEL}
+                    </a>
+                    .
                   </p>
                   <p>The knowledge comes from the source. Your job is to review and refine.</p>
                   <ul>
