@@ -1536,8 +1536,9 @@ main p {
 }
 
 .segmented {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
   gap: 4px;
   padding: 4px;
   background: #00000028;
@@ -1546,6 +1547,8 @@ main p {
 }
 .segmented button {
   cursor: pointer;
+  flex: 1 1 0;
+  min-width: 0;
   padding: 9px 10px;
   border-radius: 6px;
   text-align: center;
@@ -1561,7 +1564,6 @@ main p {
     color 0.15s;
   border: 1px solid transparent;
   background: none;
-  width: 100%;
 }
 .segmented button[data-active] {
   background: linear-gradient(180deg, #ffffff10, #ffffff04);
@@ -3568,7 +3570,9 @@ main p {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color 0.12s, color 0.12s;
+  transition:
+    border-color 0.12s,
+    color 0.12s;
 }
 .skill-output-btn:hover:not(:disabled) {
   border-color: var(--line-3);
