@@ -3323,9 +3323,6 @@ main p {
 
 /* article pages responsive */
 @media (max-width: 640px) {
-  .nav-links {
-    display: none;
-  }
   .page-wrap {
     padding: 0 20px;
   }

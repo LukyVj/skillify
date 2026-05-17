@@ -1,34 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { BrandMark } from "./BrandMark";
 
 export function Nav() {
-  const navRef = useRef<HTMLElement>(null);
-  const toggleRef = useRef<HTMLButtonElement>(null);
-  const linksRef = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+
+  const setNavOpen = useCallback((next: boolean) => {
+    setOpen(next);
+    document.body.classList.toggle("nav-locked", next);
+  }, []);
 
   useEffect(() => {
-    const nav = navRef.current;
-    const toggle = toggleRef.current;
-    const links = linksRef.current;
-    if (!nav || !toggle || !links) return;
-
-    function setNavOpen(open: boolean) {
-      nav!.classList.toggle("open", open);
-      toggle!.setAttribute("aria-expanded", open ? "true" : "false");
-      document.body.classList.toggle("nav-locked", open);
-    }
-
-    function handleToggle() {
-      setNavOpen(!nav!.classList.contains("open"));
-    }
-
-    function handleLinkClick() {
-      setNavOpen(false);
-    }
-
     function handleKeydown(e: KeyboardEvent) {
       if (e.key === "Escape") setNavOpen(false);
     }
@@ -37,21 +21,18 @@ export function Nav() {
       if (window.innerWidth > 860) setNavOpen(false);
     }
 
-    toggle.addEventListener("click", handleToggle);
-    links.querySelectorAll("a").forEach((a) => a.addEventListener("click", handleLinkClick));
     document.addEventListener("keydown", handleKeydown);
     window.addEventListener("resize", handleResize);
 
     return () => {
-      toggle.removeEventListener("click", handleToggle);
-      links.querySelectorAll("a").forEach((a) => a.removeEventListener("click", handleLinkClick));
       document.removeEventListener("keydown", handleKeydown);
       window.removeEventListener("resize", handleResize);
+      document.body.classList.remove("nav-locked");
     };
-  }, []);
+  }, [setNavOpen]);
 
   return (
-    <nav className="nav" ref={navRef}>
+    <nav className={`nav${open ? " open" : ""}`}>
       <div className="nav-inner">
         <Link className="brand" href="/">
           <BrandMark />
@@ -62,18 +43,18 @@ export function Nav() {
           className="nav-toggle"
           id="navToggle"
           aria-label="Toggle menu"
-          aria-expanded="false"
+          aria-expanded={open}
           aria-controls="navLinks"
           type="button"
-          ref={toggleRef}
+          onClick={() => setNavOpen(!open)}
         >
           <span></span><span></span><span></span>
         </button>
-        <div className="nav-links" id="navLinks" ref={linksRef}>
-          <Link href="/">Home</Link>
-          <Link href="/what-is-skill-md">What is Skill.md?</Link>
-          <Link href="/how-to-create-claude-skills">How-to guide</Link>
-          <Link className="nav-cta" href="/#tool">
+        <div className="nav-links" id="navLinks">
+          <Link href="/" onClick={() => setNavOpen(false)}>Home</Link>
+          <Link href="/what-is-skill-md" onClick={() => setNavOpen(false)}>What is Skill.md?</Link>
+          <Link href="/how-to-create-claude-skills" onClick={() => setNavOpen(false)}>How-to guide</Link>
+          <Link className="nav-cta" href="/#tool" onClick={() => setNavOpen(false)}>
             <span className="dot" />
             Open the converter
           </Link>
